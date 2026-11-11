@@ -1,0 +1,184 @@
+{
+  "app": {
+    "name": "Kerfly",
+    "language": "Language"
+  },
+  "lang": {
+    "sr": "Srpski",
+    "en": "English"
+  },
+  "steps": {
+    "settings": "Settings",
+    "builder": "Builder",
+    "confirm": "Confirm",
+    "report": "Report"
+  },
+  "settings": {
+    "title": "Settings",
+    "market": "Market",
+    "marketHint": "Changing the market sets the units, sheet size and carcass thickness.",
+    "markets": {
+      "eu": "Europe (EU)",
+      "us": "USA",
+      "uk": "United Kingdom"
+    },
+    "units": "Units",
+    "unitsOptions": {
+      "mm": "Millimeters (mm)",
+      "in": "Inches (in)"
+    },
+    "sheet": "Sheet (carcass and front)",
+    "hdfSheet": "HDF sheet",
+    "length": "Length",
+    "width": "Width",
+    "thickness": "Carcass thickness",
+    "gap": "Front gap",
+    "decor": "Decors",
+    "decorCarcass": "Carcass decor",
+    "decorFront": "Front decor",
+    "grain": "Grain",
+    "grainCarcass": "Carcass has grain (parts are not rotated)",
+    "grainFront": "Front has grain (parts are not rotated)",
+    "subtractEdge": "Subtract edge banding thickness from the cut size",
+    "wallLength": "Wall length",
+    "wallLengthHint": "Optional. Used to check the length of the lower row."
+  },
+  "builder": {
+    "title": "Builder",
+    "types": {
+      "base": "Base cabinet",
+      "drawer": "Drawer cabinet",
+      "sink": "Sink cabinet",
+      "wall": "Wall cabinet",
+      "tall": "Tall cabinet"
+    },
+    "rows": {
+      "upper": "Upper row",
+      "lower": "Lower row"
+    },
+    "rowEmpty": "No cabinets in this row.",
+    "empty": "Add the first cabinet with the buttons above.",
+    "noSelection": "Select a cabinet in the drawing or the list to edit it.",
+    "elevation": "Kitchen front view",
+    "rowSum": "Lower row: {{sum}}",
+    "rowSumWall": "Lower row: {{sum}} / wall: {{wall}}",
+    "rowOver": "exceeds the wall length by {{diff}}",
+    "rowShort": "{{diff}} short of the wall length (a filler is needed)",
+    "rowOk": "fits the wall length",
+    "width": "Width",
+    "height": "Height",
+    "depth": "Depth",
+    "doors": "Number of doors",
+    "shelves": "Number of shelves",
+    "doorSplit": "Lower door height (split)",
+    "doorSplitHint": "Empty = one door over the full height.",
+    "drawers": "Drawers",
+    "drawerFront": "Drawer {{n}} front height",
+    "drawerSum": "Fronts plus gaps: {{sum}} (cabinet height: {{H}})",
+    "addDrawer": "Add drawer",
+    "removeDrawer": "Remove drawer",
+    "moveLeft": "← Move left",
+    "moveRight": "Move right →",
+    "duplicate": "Duplicate",
+    "delete": "Delete",
+    "close": "Close"
+  },
+  "confirm": {
+    "title": "Confirm",
+    "errors": "Errors",
+    "warnings": "Warnings",
+    "noIssues": "No errors or warnings.",
+    "noModules": "Add at least one cabinet in the Builder step.",
+    "blocked": "Fix the errors to continue.",
+    "button": "Confirm and calculate",
+    "plinth": "Plinth"
+  },
+  "validation": {
+    "width": "{{module}}: width {{W}} is out of the allowed range.",
+    "doorTooWide": "{{module}}: a single door is {{width}} wide. Consider two doors.",
+    "partTooLarge": "{{module}}: part “{{part}}” ({{L}} × {{Wd}}) does not fit the sheet.",
+    "rowTooLong": "The lower row ({{row}}) is longer than the wall ({{wallLength}}).",
+    "rowShort": "The lower row ({{row}}) is shorter than the wall ({{wallLength}}): a filler is needed.",
+    "drawerHeights": "{{module}}: drawer fronts plus gaps total {{total}}, but the cabinet height is {{H}}.",
+    "wallDeeper": "{{module}}: the wall cabinet ({{D}}) is deeper than the base cabinets ({{baseD}}).",
+    "drawerBoxTooLow": "{{module}}: the box of drawer {{drawer}} is too low ({{boxHeight}}).",
+    "drawerTooShallow": "{{module}}: depth {{D}} is too small for drawer slides.",
+    "doorSplit": "{{module}}: the door split ({{doorSplitH}}) must be between 0 and the cabinet height ({{H}})."
+  },
+  "part": {
+    "side": "Side",
+    "bottom": "Bottom",
+    "bottomTop": "Bottom and top",
+    "rail": "Rail",
+    "shelf": "Shelf",
+    "fixedShelf": "Fixed shelf",
+    "back": "Back",
+    "door": "Door",
+    "drawerFront": "Drawer front",
+    "drawerSide": "Drawer box side",
+    "drawerEnd": "Drawer box end",
+    "drawerBottom": "Drawer box bottom",
+    "plinth": "Plinth"
+  },
+  "edge": {
+    "none": "None",
+    "thin": "Thin",
+    "thick": "Thick"
+  },
+  "csv": {
+    "name": "Name",
+    "length": "Length",
+    "width": "Width",
+    "qty": "Qty",
+    "L1": "Edge L1",
+    "L2": "Edge L2",
+    "W1": "Edge W1",
+    "W2": "Edge W2",
+    "grain": "Grain",
+    "grainYes": "Yes",
+    "grainNo": "No"
+  },
+  "report": {
+    "title": "Report",
+    "notReady": "The report is not available. Add cabinets and fix the errors in the Confirm step.",
+    "goConfirm": "Go to Confirm",
+    "print": "Print",
+    "shopping": "Shopping list",
+    "sheets": "Sheets",
+    "material": "Material",
+    "decor": "Decor",
+    "sheetCount": "Sheets",
+    "utilization": "Utilization",
+    "materials": {
+      "carcass": "Carcass",
+      "front": "Front",
+      "hdf": "HDF"
+    },
+    "edging": "Edge banding",
+    "worktop": "Worktop",
+    "worktopPieces": "Pieces",
+    "worktopTrim": "Wall trim",
+    "hardware": "Hardware",
+    "hinges": "Hinges",
+    "slides": "Drawer slides {{length}} (pairs)",
+    "legs": "Legs",
+    "handles": "Handles",
+    "shelfPins": "Shelf pins",
+    "wallHangers": "Wall hangers",
+    "confirmats": "Confirmat screws (estimate)",
+    "cuttingList": "Cutting list",
+    "noParts": "No parts.",
+    "exportCsv": "Export CSV",
+    "layouts": "Sheet layouts",
+    "sheetN": "Sheet {{n}}"
+  },
+  "project": {
+    "export": "Export project",
+    "import": "Import project",
+    "importError": "The project file is not valid ({{detail}}).",
+    "confirmReplace": "Importing replaces the current project. Continue?"
+  },
+  "notice": {
+    "corner": "Corner cabinets are not supported in this version."
+  }
+}

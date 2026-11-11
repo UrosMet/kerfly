@@ -1,0 +1,184 @@
+{
+  "app": {
+    "name": "Kerfly",
+    "language": "Jezik"
+  },
+  "lang": {
+    "sr": "Srpski",
+    "en": "English"
+  },
+  "steps": {
+    "settings": "Podešavanja",
+    "builder": "Sastavljanje",
+    "confirm": "Potvrda",
+    "report": "Izveštaj"
+  },
+  "settings": {
+    "title": "Podešavanja",
+    "market": "Tržište",
+    "marketHint": "Promena tržišta postavlja jedinice, dimenzije ploče i debljinu korpusa.",
+    "markets": {
+      "eu": "Evropa (EU)",
+      "us": "SAD",
+      "uk": "Velika Britanija"
+    },
+    "units": "Jedinice",
+    "unitsOptions": {
+      "mm": "Milimetri (mm)",
+      "in": "Inči (in)"
+    },
+    "sheet": "Ploča (korpus i front)",
+    "hdfSheet": "HDF ploča",
+    "length": "Dužina",
+    "width": "Širina",
+    "thickness": "Debljina korpusa",
+    "gap": "Fuga između fronti",
+    "decor": "Dekori",
+    "decorCarcass": "Dekor korpusa",
+    "decorFront": "Dekor fronta",
+    "grain": "Šara",
+    "grainCarcass": "Korpus ima šaru (bez rotacije delova)",
+    "grainFront": "Front ima šaru (bez rotacije delova)",
+    "subtractEdge": "Oduzmi debljinu kanta od mere sečenja",
+    "wallLength": "Dužina zida",
+    "wallLengthHint": "Nije obavezno. Koristi se za proveru dužine donjeg reda."
+  },
+  "builder": {
+    "title": "Sastavljanje",
+    "types": {
+      "base": "Donji element",
+      "drawer": "Fiokar",
+      "sink": "Sudopera",
+      "wall": "Zidni element",
+      "tall": "Visoki element"
+    },
+    "rows": {
+      "upper": "Gornji red",
+      "lower": "Donji red"
+    },
+    "rowEmpty": "Nema elemenata u ovom redu.",
+    "empty": "Dodaj prvi element dugmadima iznad.",
+    "noSelection": "Izaberi element na crtežu ili u listi da ga izmeniš.",
+    "elevation": "Prednji prikaz kuhinje",
+    "rowSum": "Donji red: {{sum}}",
+    "rowSumWall": "Donji red: {{sum}} / zid: {{wall}}",
+    "rowOver": "prekoračuje dužinu zida za {{diff}}",
+    "rowShort": "do dužine zida fali {{diff}} (potrebna je popuna)",
+    "rowOk": "odgovara dužini zida",
+    "width": "Širina",
+    "height": "Visina",
+    "depth": "Dubina",
+    "doors": "Broj vrata",
+    "shelves": "Broj polica",
+    "doorSplit": "Visina donjih vrata (podela)",
+    "doorSplitHint": "Prazno = jedna vrata preko cele visine.",
+    "drawers": "Fioke",
+    "drawerFront": "Visina fronta fioke {{n}}",
+    "drawerSum": "Zbir fronti i fuga: {{sum}} (visina elementa: {{H}})",
+    "addDrawer": "Dodaj fioku",
+    "removeDrawer": "Ukloni fioku",
+    "moveLeft": "← Pomeri levo",
+    "moveRight": "Pomeri desno →",
+    "duplicate": "Dupliraj",
+    "delete": "Obriši",
+    "close": "Zatvori"
+  },
+  "confirm": {
+    "title": "Potvrda",
+    "errors": "Greške",
+    "warnings": "Upozorenja",
+    "noIssues": "Nema grešaka ni upozorenja.",
+    "noModules": "Dodaj bar jedan element u koraku Sastavljanje.",
+    "blocked": "Ispravi greške da bi nastavio.",
+    "button": "Potvrdi i izračunaj",
+    "plinth": "Sokl"
+  },
+  "validation": {
+    "width": "{{module}}: širina {{W}} je izvan dozvoljenog opsega.",
+    "doorTooWide": "{{module}}: jedna vrata su široka {{width}}. Razmisli o dvoja vrata.",
+    "partTooLarge": "{{module}}: deo „{{part}}“ ({{L}} × {{Wd}}) ne staje na ploču.",
+    "rowTooLong": "Donji red ({{row}}) je duži od zida ({{wallLength}}).",
+    "rowShort": "Donji red ({{row}}) je kraći od zida ({{wallLength}}): potrebna je popuna.",
+    "drawerHeights": "{{module}}: fronte fioka i fuge zajedno su {{total}}, a visina elementa je {{H}}.",
+    "wallDeeper": "{{module}}: zidni element ({{D}}) je dublji od donjih ({{baseD}}).",
+    "drawerBoxTooLow": "{{module}}: kutija fioke {{drawer}} je preniska ({{boxHeight}}).",
+    "drawerTooShallow": "{{module}}: dubina {{D}} je premala za vođice fioka.",
+    "doorSplit": "{{module}}: podela vrata ({{doorSplitH}}) mora biti između 0 i visine elementa ({{H}})."
+  },
+  "part": {
+    "side": "Bok",
+    "bottom": "Dno",
+    "bottomTop": "Dno i vrh",
+    "rail": "Prečka",
+    "shelf": "Polica",
+    "fixedShelf": "Fiksna polica",
+    "back": "Leđa",
+    "door": "Vrata",
+    "drawerFront": "Front fioke",
+    "drawerSide": "Stranica kutije",
+    "drawerEnd": "Čelo kutije",
+    "drawerBottom": "Dno kutije",
+    "plinth": "Sokl"
+  },
+  "edge": {
+    "none": "Bez",
+    "thin": "Tanak",
+    "thick": "Debeli"
+  },
+  "csv": {
+    "name": "Naziv",
+    "length": "Dužina",
+    "width": "Širina",
+    "qty": "Količina",
+    "L1": "Kant L1",
+    "L2": "Kant L2",
+    "W1": "Kant W1",
+    "W2": "Kant W2",
+    "grain": "Šara",
+    "grainYes": "Da",
+    "grainNo": "Ne"
+  },
+  "report": {
+    "title": "Izveštaj",
+    "notReady": "Izveštaj nije dostupan. Dodaj elemente i ispravi greške na koraku Potvrda.",
+    "goConfirm": "Idi na Potvrdu",
+    "print": "Štampaj",
+    "shopping": "Spisak za kupovinu",
+    "sheets": "Ploče",
+    "material": "Materijal",
+    "decor": "Dekor",
+    "sheetCount": "Broj ploča",
+    "utilization": "Iskorišćenje",
+    "materials": {
+      "carcass": "Korpus",
+      "front": "Front",
+      "hdf": "HDF"
+    },
+    "edging": "Kant",
+    "worktop": "Radna ploča",
+    "worktopPieces": "Komada",
+    "worktopTrim": "Zidna lajsna",
+    "hardware": "Okovi",
+    "hinges": "Šarke",
+    "slides": "Vođice fioka {{length}} (parova)",
+    "legs": "Nogice",
+    "handles": "Ručke",
+    "shelfPins": "Nosači polica",
+    "wallHangers": "Vešalice",
+    "confirmats": "Konfirmati (procena)",
+    "cuttingList": "Krojna lista",
+    "noParts": "Nema delova.",
+    "exportCsv": "Izvezi CSV",
+    "layouts": "Rasporedi ploča",
+    "sheetN": "Ploča {{n}}"
+  },
+  "project": {
+    "export": "Izvezi projekat",
+    "import": "Uvezi projekat",
+    "importError": "Fajl projekta nije ispravan ({{detail}}).",
+    "confirmReplace": "Uvoz zamenjuje trenutni projekat. Nastaviti?"
+  },
+  "notice": {
+    "corner": "Ugaoni elementi nisu podržani u ovoj verziji."
+  }
+}
