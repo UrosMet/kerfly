@@ -368,17 +368,6 @@ button.brand:hover:not(:disabled) {
   align-items: center;
   gap: 10px;
 }
-.project-menu {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 6px;
-}
-.project-menu button {
-  min-height: 36px;
-  padding: 6px 12px;
-  font-size: 0.9rem;
-}
 .import-error {
   flex-basis: 100%;
   margin: 0;
@@ -958,13 +947,6 @@ main {
     padding: 6px 4px;
     font-size: 0.9rem;
   }
-  .project-menu {
-    order: 4;
-    flex-basis: 100%;
-  }
-  .project-menu button {
-    flex: 1;
-  }
   main {
     padding: 16px 14px 48px;
   }
@@ -1411,4 +1393,84 @@ main {
   flex: 1;
   width: 100%;
   min-width: 0;
+}
+
+/* ───────── project menu: a dropdown, so the header stays small ───────── */
+.header-inner {
+  position: relative;
+}
+.project-menu {
+  position: relative;
+}
+.project-menu > summary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 40px;
+  padding: 6px 14px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--surface);
+  font-weight: 500;
+  list-style: none;
+  cursor: pointer;
+}
+.project-menu > summary::-webkit-details-marker {
+  display: none;
+}
+.project-menu > summary:hover,
+.project-menu[open] > summary {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+.project-menu > summary:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--accent) 55%, transparent);
+  outline-offset: 2px;
+}
+.project-panel {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  z-index: 20;
+  display: grid;
+  gap: 6px;
+  min-width: 14rem;
+  padding: 8px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--surface);
+  box-shadow: var(--shadow);
+}
+.import-error {
+  flex-basis: 100%;
+  margin: 0;
+  color: var(--err);
+}
+@media (max-width: 640px) {
+  /* the header scrolls away with the page instead of covering a third of the screen */
+  .app-header {
+    position: static;
+  }
+  .project-menu {
+    position: static;
+    order: 2;
+  }
+  .project-menu > summary {
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    justify-content: center;
+    border-radius: 50%;
+  }
+  .project-menu .menu-label {
+    display: none;
+  }
+  .project-panel {
+    left: 14px;
+    right: 14px;
+    top: calc(100% - 4px);
+  }
+  .import-error {
+    order: 5;
+  }
 }

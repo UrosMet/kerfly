@@ -208,7 +208,8 @@
     "export": "Izvezi projekat",
     "import": "Uvezi projekat",
     "importError": "Fajl projekta nije ispravan ({{detail}}).",
-    "confirmReplace": "Uvoz zamenjuje trenutni projekat. Nastaviti?"
+    "confirmReplace": "Uvoz zamenjuje trenutni projekat. Nastaviti?",
+    "menu": "Projekat"
   },
   "notice": {
     "corner": "Ugaoni elementi nisu podržani u ovoj verziji."

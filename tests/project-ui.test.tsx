@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { act, cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import App from '../src/App';
 import { DEFAULT_SETTINGS } from '../src/core/defaults';
@@ -167,5 +167,55 @@ describe('units everywhere', () => {
     render(<App />);
     if (step === 1) fireEvent.click(screen.getByRole('button', { name: /Donji element · 23\.74/ })); // opens the card too
     expect(document.body.textContent).not.toMatch(/\d\s?mm\b/);
+  });
+});
+
+describe('project menu', () => {
+  const menu = () => document.querySelector('details.project-menu') as HTMLDetailsElement;
+
+  it('is a closed dropdown with the two actions inside, and an icon button named Projekat', () => {
+    render(<App />);
+    expect(menu().open).toBe(false);
+    expect(screen.getByLabelText('Projekat').tagName).toBe('SUMMARY');
+    const panel = menu().querySelector('.project-panel')!;
+    expect(within(panel as HTMLElement).getByRole('button', { name: 'Izvezi projekat' })).toBeTruthy();
+    expect(within(panel as HTMLElement).getByRole('button', { name: 'Uvezi projekat' })).toBeTruthy();
+  });
+
+  it('exporting closes the menu', () => {
+    render(<App />);
+    menu().open = true;
+    fireEvent.click(screen.getByRole('button', { name: 'Izvezi projekat' }));
+    expect(menu().open).toBe(false);
+  });
+
+  it('Escape and a tap outside close it; a tap inside does not', () => {
+    render(<App />);
+    menu().open = true;
+    fireEvent.pointerDown(screen.getByRole('button', { name: 'Uvezi projekat' }));
+    expect(menu().open).toBe(true);
+    fireEvent.pointerDown(document.body);
+    expect(menu().open).toBe(false);
+    menu().open = true;
+    fireEvent.keyDown(document, { key: 'Escape' });
+    expect(menu().open).toBe(false);
+  });
+
+  it('a good import closes the menu; a bad file keeps it open and shows the error outside it', async () => {
+    render(<App />);
+    menu().open = true;
+    importFile('not json');
+    const alert = await screen.findByRole('alert');
+    expect(menu().open).toBe(true);
+    expect(menu().contains(alert)).toBe(false); // the message does not hide inside the closed menu
+    importFile(serializeProject({ settings: DEFAULT_SETTINGS, modules: addModule([], 'sink', 'z') }));
+    await waitFor(() => expect(menu().open).toBe(false));
+    expect(st().modules.map((m) => m.id)).toEqual(['z']);
+  });
+
+  it('is translated', async () => {
+    await i18n.changeLanguage('en');
+    render(<App />);
+    expect(screen.getByLabelText('Project').tagName).toBe('SUMMARY');
   });
 });

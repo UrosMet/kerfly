@@ -208,7 +208,8 @@
     "export": "Export project",
     "import": "Import project",
     "importError": "The project file is not valid ({{detail}}).",
-    "confirmReplace": "Importing replaces the current project. Continue?"
+    "confirmReplace": "Importing replaces the current project. Continue?",
+    "menu": "Project"
   },
   "notice": {
     "corner": "Corner cabinets are not supported in this version."
