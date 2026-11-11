@@ -27,7 +27,7 @@ Pravila za formule su u [CLAUDE.md](CLAUDE.md). Logika računanja je u `src/core
 
 ## Objava
 
-Svaki push na `main` pokreće GitHub Actions (`.github/workflows/pages.yml`): testovi, build i objava na GitHub Pages. Ako test padne, sajt se ne menja. Ručno se objavljuje sa `npm run deploy` (grana `gh-pages`).
+Svaki push na `main` pokreće GitHub Actions (`.github/workflows/pages.yml`): testovi, build i objava na GitHub Pages. Ako test padne, sajt se ne menja. Izvršavanja se vide na kartici Actions, odakle može i ručno da se pokrene ("Run workflow").
 
 ## Licenca
 
