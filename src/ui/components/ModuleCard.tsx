@@ -3,6 +3,7 @@ import { evenDrawers, rowModules } from '../../core/modules';
 import type { Module } from '../../core/types';
 import { formatLength, fromMm, toMm } from '../../core/units';
 import { useStore } from '../../store';
+import BoardField from './BoardField';
 import NumberField from './NumberField';
 
 const isInt = (min: number, max = Infinity) => (n: number) => Number.isInteger(n) && n >= min && n <= max;
@@ -74,6 +75,12 @@ export default function ModuleCard({ module: m }: { module: Module }) {
           />
         )}
       </div>
+
+      <div className="card-fields boards-fields">
+        <BoardField module={m} kind="carcass" />
+        <BoardField module={m} kind="front" />
+      </div>
+      <small className="hint">{t('builder.boardHint')}</small>
 
       {m.type === 'drawer' && (
         <fieldset>

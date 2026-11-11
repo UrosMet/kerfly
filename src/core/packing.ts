@@ -1,4 +1,5 @@
-import type { MaterialKey, Part, Settings, SheetSize } from './types';
+import { allBoards, boardOfPart } from './boards';
+import type { Board, Part, Settings, SheetSize } from './types';
 
 // Guillotine packing, one material at a time. Coordinates: x runs along the sheet length,
 // y along its width. A piece occupies (size + kerf) in each direction; the usable area is
@@ -162,14 +163,25 @@ export function packMaterial(parts: Part[], sheet: SheetSize, s: Settings, rotat
   };
 }
 
-/** Packs every material separately: carcass and front on `sheet`, hdf on `hdfSheet`. HDF has no grain. */
-export function packAll(parts: Part[], s: Settings): Record<MaterialKey, PackResult> {
-  const run = (m: MaterialKey) =>
-    packMaterial(
-      parts.filter((p) => p.material === m),
-      m === 'hdf' ? s.hdfSheet : s.sheet,
-      s,
-      m === 'hdf' ? true : !s.grain[m],
-    );
-  return { carcass: run('carcass'), front: run('front'), hdf: run('hdf') };
+export interface BoardPack {
+  board: Board;
+  result: PackResult;
+}
+
+/**
+ * Packs the parts board by board: parts cut from the same board share its sheets, parts from different
+ * boards (decors, thicknesses, sheet sizes) never do. Boards without parts are left out.
+ */
+export function packBoards(parts: Part[], s: Settings): BoardPack[] {
+  const groups = new Map<string, { board: Board; parts: Part[] }>();
+  for (const p of parts) {
+    const board = boardOfPart(s, p);
+    const g = groups.get(board.id) ?? { board, parts: [] };
+    g.parts.push(p);
+    groups.set(board.id, g);
+  }
+  const order = allBoards(s).map((b) => b.id);
+  return [...groups.values()]
+    .sort((a, b) => order.indexOf(a.board.id) - order.indexOf(b.board.id))
+    .map((g) => ({ board: g.board, result: packMaterial(g.parts, g.board.sheet, s, !g.board.grain) }));
 }

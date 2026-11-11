@@ -1,8 +1,9 @@
 import { create } from 'zustand';
 import { DEFAULT_SETTINGS, MARKET_PRESETS } from './core/defaults';
+import { assignBoardByName, newBoard, withoutBoard } from './core/boards';
 import * as ops from './core/modules';
 import { parseProject, type Project } from './core/project';
-import type { Market, Module, ModuleType, Settings } from './core/types';
+import type { Board, Market, Module, ModuleType, Settings } from './core/types';
 
 const KEY = 'kerfly.project';
 
@@ -28,7 +29,9 @@ export function saveProject(p: Project): void {
 }
 
 interface State extends Project {
-  step: number; // 0..3
+  started: boolean; // false = landing page; not saved
+  step: number; // 0..2 (settings, builder, report)
+  setStarted: (started: boolean) => void;
   selectedId: string | null; // builder selection, not saved
   setStep: (step: number) => void;
   setSettings: (patch: Partial<Settings>) => void;
@@ -43,6 +46,12 @@ interface State extends Project {
   moveModule: (id: string, dir: -1 | 1) => void;
   duplicateModule: (id: string) => void;
   deleteModule: (id: string) => void;
+  /** Sets a module's carcass or front board from a typed name; see assignBoardByName. */
+  chooseBoard: (moduleId: string, kind: 'carcass' | 'front', name: string) => void;
+  addBoard: () => void;
+  updateBoard: (id: string, patch: Partial<Board>) => void;
+  /** Modules that used the board go back to the project default. */
+  deleteBoard: (id: string) => void;
 }
 
 // crypto.randomUUID needs a secure context, so it is not used here.
@@ -51,8 +60,10 @@ const newId = () => `m${Date.now().toString(36)}${(counter++).toString(36)}${Mat
 
 export const useStore = create<State>()((set) => ({
   ...loadProject(),
+  started: false,
   step: 0,
   selectedId: null,
+  setStarted: (started) => set({ started }),
   setStep: (step) => set({ step }),
   setSettings: (patch) => set((st) => ({ settings: { ...st.settings, ...patch } })),
   setMarket: (market) => set((st) => ({ settings: { ...st.settings, ...MARKET_PRESETS[market] } })),
@@ -71,6 +82,13 @@ export const useStore = create<State>()((set) => ({
       const copy = newId();
       return { modules: ops.duplicateModule(st.modules, id, copy), selectedId: copy };
     }),
+  chooseBoard: (moduleId, kind, name) =>
+    set((st) => assignBoardByName(st.settings, st.modules, moduleId, kind, name, newId())),
+  addBoard: () => set((st) => ({ settings: { ...st.settings, boards: [...st.settings.boards, newBoard(st.settings, newId())] } })),
+  updateBoard: (id, patch) =>
+    set((st) => ({ settings: { ...st.settings, boards: st.settings.boards.map((b) => (b.id === id ? { ...b, ...patch } : b)) } })),
+  deleteBoard: (id) =>
+    set((st) => ({ settings: { ...st.settings, boards: st.settings.boards.filter((b) => b.id !== id) }, modules: withoutBoard(st.modules, id) })),
   deleteModule: (id) =>
     set((st) => ({ modules: ops.deleteModule(st.modules, id), selectedId: st.selectedId === id ? null : st.selectedId })),
 }));

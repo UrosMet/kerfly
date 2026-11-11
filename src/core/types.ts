@@ -8,6 +8,15 @@ export interface SheetSize {
   width: number;
 }
 
+/** A kind of sheet material: a decor with its own thickness, sheet size and grain. */
+export interface Board {
+  id: string; // 'carcass', 'front' and 'hdf' are the project defaults; others are added by the user
+  name: string; // decor, e.g. "Hrast Sonoma"
+  thickness: number;
+  sheet: SheetSize;
+  grain: boolean; // true = parts are not rotated
+}
+
 export interface Settings {
   units: Units;
   market: Market;
@@ -16,6 +25,8 @@ export interface Settings {
   kerf: number; // 4
   trim: number; // 10, trimmed off every sheet edge
   t: number; // carcass thickness 18
+  frontT: number; // front thickness 18
+  hdfT: number; // HDF thickness 3
   gap: number; // front gap 3
   edgeThin: number; // 0.45
   edgeThick: number; // 2
@@ -24,6 +35,10 @@ export interface Settings {
   decor: { carcass: string; front: string };
   worktopLength: number; // 4100
   worktopDepth: number; // 600
+  worktopDecor: string;
+  worktopT: number; // worktop thickness 38
+  /** Extra boards the user adds; modules can pick them. The defaults come from sheet/t/decor/grain above. */
+  boards: Board[];
   plinth: 'none' | 'board' | 'pvc';
   plinthHeight: number; // 100
   wallLength?: number;
@@ -43,12 +58,15 @@ export interface Module {
   shelves: number;
   drawers?: number[]; // front heights, e.g. [140, 280, 280]
   doorSplitH?: number; // tall only: height of lower door section
+  carcassBoard?: string; // board id; undefined = the project's default carcass board
+  frontBoard?: string; // board id; undefined = the project's default front board
 }
 
 export interface Part {
   moduleId: string;
   nameKey: string; // i18n key, e.g. "part.side"
   material: MaterialKey;
+  board?: string; // board id the part is cut from; undefined = the default board of its material
   L: number; // dimension along grain (along sheet length)
   Wd: number;
   qty: number;

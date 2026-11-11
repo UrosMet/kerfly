@@ -11,6 +11,8 @@ export const DEFAULT_SETTINGS: Settings = {
   kerf: 4,
   trim: 10,
   t: 18,
+  frontT: 18,
+  hdfT: 3,
   gap: 3,
   edgeThin: 0.45,
   edgeThick: 2,
@@ -19,14 +21,17 @@ export const DEFAULT_SETTINGS: Settings = {
   decor: { carcass: '', front: '' },
   worktopLength: 4100,
   worktopDepth: 600,
+  worktopDecor: '',
+  worktopT: 38,
+  boards: [],
   plinth: 'board',
   plinthHeight: 100,
 };
 
 export const MARKET_PRESETS: Record<Market, Partial<Settings>> = {
-  eu: { market: 'eu', units: 'mm', sheet: EU_SHEET, hdfSheet: EU_SHEET, t: 18 },
-  us: { market: 'us', units: 'in', sheet: US_SHEET, hdfSheet: US_SHEET, t: 18 },
-  uk: { market: 'uk', units: 'mm', sheet: US_SHEET, hdfSheet: US_SHEET, t: 18 },
+  eu: { market: 'eu', units: 'mm', sheet: EU_SHEET, hdfSheet: EU_SHEET, t: 18, frontT: 18 },
+  us: { market: 'us', units: 'in', sheet: US_SHEET, hdfSheet: US_SHEET, t: 18, frontT: 18 },
+  uk: { market: 'uk', units: 'mm', sheet: US_SHEET, hdfSheet: US_SHEET, t: 18, frontT: 18 },
 };
 
 export const settingsForMarket = (market: Market): Settings => ({

@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { edgeMeters } from '../src/core/edging';
 import { generateHardware } from '../src/core/hardware';
-import { packAll } from '../src/core/packing';
+import { packBoards } from '../src/core/packing';
 import { generateParts } from '../src/core/parts';
 import { buildReport, cuttingListCsv, type CutRow } from '../src/core/report';
 import type { Module, Settings } from '../src/core/types';
@@ -14,57 +14,58 @@ const kitchen: Module[] = [
   ...Array.from({ length: 5 }, (_, i) => mod('wall', { id: `wall${i}`, order: i })),
   mod('tall', { id: 'tall', order: 6 }),
 ];
-const s: Settings = { ...settings, decor: { carcass: 'Hrast', front: 'Bela' } };
+const s: Settings = { ...settings, decor: { carcass: 'Hrast', front: 'Bela' }, worktopDecor: 'Beton' };
 
 describe('buildReport', () => {
   const r = buildReport(kitchen, s);
   const parts = generateParts(kitchen, s);
 
-  it('shopping list: sheets per decor with utilization', () => {
-    const { sheets } = r.shopping;
-    expect([sheets.carcass.count, sheets.front.count, sheets.hdf.count]).toEqual([4, 2, 2]);
-    expect(sheets.carcass.decor).toBe('Hrast');
-    expect(sheets.front.decor).toBe('Bela');
-    expect(sheets.hdf.decor).toBeUndefined();
-    const u = r.layouts.carcass.sheets.map((x) => x.utilization);
-    expect(sheets.carcass.utilization).toBeCloseTo(u.reduce((a, b) => a + b) / 4, 10);
+  it('shopping list: sheets per board with decor, thickness, size and utilization', () => {
+    const lines = r.shopping.sheets;
+    expect(lines.map((l) => [l.boardId, l.name, l.count])).toEqual([['carcass', 'Hrast', 4], ['front', 'Bela', 2], ['hdf', '', 2]]);
+    expect(lines.map((l) => l.thickness)).toEqual([18, 18, 3]);
+    expect(lines.every((l) => l.sheet.length === 2800 && l.sheet.width === 2070)).toBe(true);
+    expect(lines.map((l) => l.kinds)).toEqual([['carcass'], ['front'], ['hdf']]);
+    const u = r.layouts[0].result.sheets.map((x) => x.utilization);
+    expect(lines[0].utilization).toBeCloseTo(u.reduce((a, b) => a + b) / 4, 10);
   });
 
   it('edging, hardware and worktop come from the core functions', () => {
     expect(r.shopping.edging).toEqual(edgeMeters(parts, s));
     const { worktop, ...hw } = generateHardware(kitchen, s);
     expect(r.shopping.hardware).toEqual(hw);
-    expect(r.shopping.worktop).toEqual(worktop);
-    expect(r.shopping.worktop.pieces).toBe(1); // 4 x 600 + 800 + 600 = 3800 <= 4100, tall excluded
+    expect(r.shopping.worktop).toMatchObject({ ...worktop, decor: 'Beton', thickness: 38, length: 4100, depth: 600 });
+    expect(r.shopping.worktop.pieces).toBe(1); // 3800 <= 4100, tall excluded
   });
 
-  it('cutting list: total qty per material equals the parts', () => {
-    for (const m of ['carcass', 'front', 'hdf'] as const) {
-      const expected = parts.filter((p) => p.material === m).reduce((a, p) => a + p.qty, 0);
-      expect(r.cuttingList[m].reduce((a, row) => a + row.qty, 0)).toBe(expected);
+  it('cutting list: one table per board, total qty equals the parts', () => {
+    expect(r.cuttingList.map((t) => t.board.id)).toEqual(['carcass', 'front', 'hdf']);
+    for (const t of r.cuttingList) {
+      const expected = parts.filter((p) => (p.board ?? p.material) === t.board.id).reduce((a, p) => a + p.qty, 0);
+      expect(t.rows.reduce((a, row) => a + row.qty, 0)).toBe(expected);
     }
   });
 
   it('cutting list merges identical parts across modules', () => {
-    const sides = r.cuttingList.carcass.filter((x) => x.nameKey === 'part.side' && x.L === 720 && x.Wd === 560);
+    const sides = r.cuttingList[0].rows.filter((x) => x.nameKey === 'part.side' && x.L === 720 && x.Wd === 560);
     expect(sides).toHaveLength(1);
     expect(sides[0].qty).toBe(2 * 4 + 2 * 1 + 2 * 1); // 4 base + sink + drawer
   });
 
-  it('layouts equal packAll of the parts', () => {
-    expect(r.layouts).toEqual(packAll(parts, s));
+  it('layouts equal packBoards of the parts', () => {
+    expect(r.layouts).toEqual(packBoards(parts, s));
   });
 
-  it('grain flag follows settings; hdf never has grain', () => {
+  it('grain flag follows the board; hdf never has grain', () => {
     const g = buildReport(kitchen, { ...s, grain: { carcass: true, front: false } });
-    expect(g.cuttingList.carcass.every((x) => x.grain)).toBe(true);
-    expect(g.cuttingList.front.some((x) => x.grain)).toBe(false);
-    expect(g.cuttingList.hdf.some((x) => x.grain)).toBe(false);
+    expect(g.cuttingList[0].rows.every((x) => x.grain)).toBe(true);
+    expect(g.cuttingList[1].rows.some((x) => x.grain)).toBe(false);
+    expect(g.cuttingList[2].rows.some((x) => x.grain)).toBe(false);
   });
 
   it('cut sizes use subtractEdge', () => {
     const b = buildReport([mod('base')], { ...s, subtractEdge: true, edgeThick: 2 });
-    expect(b.cuttingList.front[0]).toMatchObject({ nameKey: 'part.door', L: 593, Wd: 713 });
+    expect(b.cuttingList.find((t) => t.board.id === 'front')!.rows[0]).toMatchObject({ nameKey: 'part.door', L: 593, Wd: 713 });
   });
 
   it('carries warnings, throws on errors', () => {
@@ -74,15 +75,25 @@ describe('buildReport', () => {
 
   it('empty kitchen -> empty report', () => {
     const e = buildReport([], s);
-    expect(e.shopping.sheets.carcass).toMatchObject({ count: 0, utilization: 0 });
-    expect(e.cuttingList.carcass).toEqual([]);
+    expect(e.shopping.sheets).toEqual([]);
+    expect(e.cuttingList).toEqual([]);
+    expect(e.layouts).toEqual([]);
+  });
+
+  it('a board with no parts is not in the report (wall without doors has no front)', () => {
+    const w = buildReport([mod('wall', { doors: 0 })], s);
+    expect(w.shopping.sheets.map((l) => l.boardId)).toEqual(['carcass', 'hdf']);
   });
 });
 
 describe('cuttingListCsv', () => {
   const row: CutRow = {
-    nameKey: 'part.door', L: 597, Wd: 717, qty: 2,
-    edges: { L1: 'thick', L2: 'thick', W1: 'thick', W2: 'none' }, grain: true,
+    nameKey: 'part.door',
+    L: 597,
+    Wd: 717,
+    qty: 2,
+    edges: { L1: 'thick', L2: 'thick', W1: 'thick', W2: 'none' },
+    grain: true,
   };
 
   it('header + one line per row, keys by default', () => {
@@ -103,7 +114,8 @@ describe('cuttingListCsv', () => {
   });
 
   it('works on a real report', () => {
-    const csv = cuttingListCsv(buildReport(kitchen, s).cuttingList.carcass);
-    expect(csv.trim().split('\n')).toHaveLength(1 + buildReport(kitchen, s).cuttingList.carcass.length);
+    const rep = buildReport(kitchen, s);
+    const csv = cuttingListCsv(rep.cuttingList[0].rows);
+    expect(csv.trim().split('\n')).toHaveLength(1 + rep.cuttingList[0].rows.length);
   });
 });

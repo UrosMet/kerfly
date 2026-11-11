@@ -12,7 +12,7 @@ const type = (label: string, v: string) => fireEvent.change(input(label), { targ
 
 beforeEach(async () => {
   localStorage.clear();
-  useStore.setState({ settings: DEFAULT_SETTINGS, modules: [], step: 0 });
+  useStore.setState({ settings: DEFAULT_SETTINGS, modules: [], step: 0, started: true });
   await i18n.changeLanguage('sr');
 });
 afterEach(cleanup);
@@ -84,13 +84,23 @@ describe('SettingsStep', () => {
   });
 });
 
+describe('Next button', () => {
+  it('goes from the settings to the builder', () => {
+    render(<App />);
+    fireEvent.click(screen.getByRole('button', { name: /Dalje/ }));
+    expect(useStore.getState().step).toBe(1);
+    expect(screen.getByRole('heading', { name: 'Sastavljanje' })).toBeTruthy();
+  });
+});
+
 describe('App shell', () => {
   it('steps are clickable and the language switches', () => {
     render(<App />);
-    fireEvent.click(screen.getByText('4. Izveštaj'));
+    fireEvent.click(screen.getByRole('button', { name: /Izveštaj/ }));
     expect(screen.getByText(/Izveštaj nije dostupan/)).toBeTruthy();
-    fireEvent.change(screen.getByLabelText('Jezik'), { target: { value: 'en' } });
-    expect(screen.getByText('4. Report')).toBeTruthy();
+    fireEvent.click(screen.getByRole('button', { name: 'English' }));
+    expect(screen.getByRole('button', { name: /Report/ })).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'English' }).getAttribute('aria-pressed')).toBe('true');
     expect(localStorage.getItem('kerfly.lang')).toBe('en');
     expect(document.documentElement.lang).toBe('en');
   });

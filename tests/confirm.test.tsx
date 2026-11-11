@@ -11,30 +11,30 @@ import { useStore } from '../src/store';
 const build = (...specs: [string, ModuleType, Partial<Module>?][]): Module[] =>
   specs.reduce<Module[]>((acc, [id, type, over]) => updateModule(addModule(acc, type, id), id, over ?? {}), []);
 const load = (modules: Module[], settings: Partial<Settings> = {}) =>
-  act(() => useStore.setState({ modules, settings: { ...DEFAULT_SETTINGS, ...settings }, step: 2 }));
+  act(() => useStore.setState({ modules, settings: { ...DEFAULT_SETTINGS, ...settings }, step: 1, started: true }));
 const button = () => screen.getByRole('button', { name: 'Potvrdi i izračunaj' }) as HTMLButtonElement;
 
 beforeEach(async () => {
   localStorage.clear();
-  useStore.setState({ settings: DEFAULT_SETTINGS, modules: [], step: 2, selectedId: null });
+  useStore.setState({ settings: DEFAULT_SETTINGS, modules: [], step: 1, started: true, selectedId: null });
   await i18n.changeLanguage('sr');
 });
 afterEach(cleanup);
 
-describe('ConfirmStep', () => {
+describe('validation panel in the builder', () => {
   it('empty project: message, button disabled', () => {
     render(<App />);
-    expect(screen.getByText('Dodaj bar jedan element u koraku Sastavljanje.')).toBeTruthy();
+    expect(screen.getByText('Dodaj bar jedan element da bi nastavio.')).toBeTruthy();
     expect(button().disabled).toBe(true);
   });
 
   it('valid project: no issues, button enabled, click opens the report', () => {
     load(build(['a', 'base']));
     render(<App />);
-    expect(screen.getByText('Nema grešaka ni upozorenja.')).toBeTruthy();
+    expect(screen.getByText('Sve je u redu: nema grešaka ni upozorenja.')).toBeTruthy();
     expect(button().disabled).toBe(false);
     fireEvent.click(button());
-    expect(useStore.getState().step).toBe(3);
+    expect(useStore.getState().step).toBe(2);
   });
 
   it('errors are listed with the module and block the button', () => {
@@ -45,7 +45,7 @@ describe('ConfirmStep', () => {
     expect(screen.getByText('Ispravi greške da bi nastavio.')).toBeTruthy();
     expect(button().disabled).toBe(true);
     fireEvent.click(button());
-    expect(useStore.getState().step).toBe(2);
+    expect(useStore.getState().step).toBe(1); // blocked
   });
 
   it('warnings alone do not block', () => {

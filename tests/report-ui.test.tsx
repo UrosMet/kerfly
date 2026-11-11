@@ -22,12 +22,14 @@ const kitchen = (): Module[] => [
 const load = (modules: Module[], settings: Partial<Settings> = {}) => {
   let list: Module[] = [];
   for (const m of modules) list = updateModule(addModule(list, m.type, m.id), m.id, m);
-  act(() => useStore.setState({ modules: list, settings: { ...DEFAULT_SETTINGS, ...settings }, step: 3 }));
+  act(() => useStore.setState({ modules: list, settings: { ...DEFAULT_SETTINGS, ...settings }, step: 2, started: true }));
   return list;
 };
 const table = (name: string) => screen.getByRole('table', { name });
 const cells = (row: HTMLElement) => within(row).getAllByRole('cell').map((c) => c.textContent);
 const rowWith = (t: HTMLElement, text: string) => within(t).getAllByRole('row').find((r) => r.textContent?.includes(text))!;
+
+const needSentences = () => within(screen.getByRole('region', { name: 'Treba da kupiš' })).getAllByRole('listitem').map((li) => li.getAttribute('data-sentence'));
 
 // capture what would be downloaded
 let blob: Blob | undefined;
@@ -47,7 +49,7 @@ beforeEach(async () => {
   vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(function (this: HTMLAnchorElement) {
     filename = this.download;
   });
-  useStore.setState({ settings: DEFAULT_SETTINGS, modules: [], step: 3, selectedId: null });
+  useStore.setState({ settings: DEFAULT_SETTINGS, modules: [], step: 2, started: true, selectedId: null });
   await i18n.changeLanguage('sr');
 });
 afterEach(() => {
@@ -56,25 +58,25 @@ afterEach(() => {
 });
 
 describe('ReportStep', () => {
-  it('not ready without modules or with errors; button goes to Confirm', () => {
+  it('not ready without modules or with errors; button goes to the builder', () => {
     render(<App />);
     expect(screen.getByText(/Izveštaj nije dostupan/)).toBeTruthy();
-    fireEvent.click(screen.getByRole('button', { name: 'Idi na Potvrdu' }));
-    expect(useStore.getState().step).toBe(2);
+    fireEvent.click(screen.getByRole('button', { name: 'Idi na Sastavljanje' }));
+    expect(useStore.getState().step).toBe(1);
     cleanup();
     load(build(['a', 'base', { W: 100 }]));
     render(<App />);
     expect(screen.getByText(/Izveštaj nije dostupan/)).toBeTruthy();
   });
 
-  it('shopping list: sheets per material with decor, edging, worktop, hardware', () => {
+  it('shopping list: sheets per board with decor, thickness and size, edging, worktop, hardware', () => {
     const modules = load(kitchen(), { decor: { carcass: 'Hrast', front: 'Bela' } });
     render(<App />);
     const sheets = table('Ploče');
-    expect(cells(rowWith(sheets, 'Korpus')).slice(0, 3)).toEqual(['Korpus', 'Hrast', '4']);
-    expect(cells(rowWith(sheets, 'Front')).slice(0, 3)).toEqual(['Front', 'Bela', '2']);
-    expect(cells(rowWith(sheets, 'HDF')).slice(0, 3)).toEqual(['HDF', '', '2']);
-    expect(cells(rowWith(sheets, 'Korpus'))[3]).toMatch(/^\d+\.\d%$/);
+    expect(cells(rowWith(sheets, 'Korpus')).slice(0, 5)).toEqual(['Korpus', 'Hrast', '18 mm', '2800 × 2070 mm', '4']);
+    expect(cells(rowWith(sheets, 'Front')).slice(0, 5)).toEqual(['Front', 'Bela', '18 mm', '2800 × 2070 mm', '2']);
+    expect(cells(rowWith(sheets, 'HDF')).slice(0, 5)).toEqual(['HDF', '', '3 mm', '2800 × 2070 mm', '2']);
+    expect(cells(rowWith(sheets, 'Korpus'))[5]).toMatch(/^\d+\.\d%$/);
 
     expect(cells(rowWith(table('Kant'), 'Korpus')).slice(1)).toHaveLength(2);
 
@@ -89,13 +91,13 @@ describe('ReportStep', () => {
   it('cutting list per material as a table', () => {
     load(kitchen());
     render(<App />);
-    const carcass = table('Korpus');
+    const carcass = table('Korpus · 18 mm');
     expect(within(carcass).getAllByRole('columnheader').map((h) => h.textContent)).toEqual([
       'Naziv', 'Dužina', 'Širina', 'Količina', 'Kant L1', 'Kant L2', 'Kant W1', 'Kant W2', 'Šara',
     ]);
     // 4 base + sink + drawer = 6 cabinets x 2 sides
     expect(cells(rowWith(carcass, 'Bok')).slice(0, 4)).toEqual(['Bok', '720', '560', '12']);
-    expect(cells(rowWith(table('HDF'), 'Dno kutije'))[3]).toBe('3');
+    expect(cells(rowWith(table('HDF · 3 mm'), 'Dno kutije'))[3]).toBe('3');
   });
 
   it('draws a layout for every sheet with every piece labeled', () => {
@@ -109,11 +111,11 @@ describe('ReportStep', () => {
     expect(first.querySelectorAll('text')).toHaveLength(2);
   });
 
-  it('CSV export: one file per material, UTF-8 with BOM, units in the header', async () => {
+  it('CSV export: one file per board, UTF-8 with BOM, units in the header', async () => {
     load(kitchen());
     render(<App />);
     fireEvent.click(within(document.querySelector('.cutting-list') as HTMLElement).getByRole('button', { name: 'Izvezi CSV' }));
-    expect(filename).toBe('kerfly-carcass.csv');
+    expect(filename).toBe('kerfly-1-korpus.csv');
     const bytes = await readBytes(blob!);
     expect([...bytes.slice(0, 3)]).toEqual([0xef, 0xbb, 0xbf]);
     const text = new TextDecoder().decode(bytes);
@@ -125,20 +127,19 @@ describe('ReportStep', () => {
   it('inches: tables, layouts and CSV use the selected units', async () => {
     load(build(['a', 'base']), { units: 'in' });
     render(<App />);
-    expect(cells(rowWith(table('Korpus'), 'Bok')).slice(0, 3)).toEqual(['Bok', '28.35', '22.05']);
+    expect(cells(rowWith(table('Korpus · 0.71 in'), 'Bok')).slice(0, 3)).toEqual(['Bok', '28.35', '22.05']);
     fireEvent.click(screen.getAllByRole('button', { name: 'Izvezi CSV' })[0]);
     const text = new TextDecoder().decode(await readBytes(blob!));
     expect(text.split('\n')[0]).toContain('Dužina (in),Širina (in)');
     expect(text).toContain('Bok,28.35,22.05,2');
   });
 
-  it('a material without parts: message, disabled export, no layout', () => {
-    load(build(['w', 'wall', { doors: 0 }])); // no doors -> no front parts
+  it('a board without parts is not listed (a wall cabinet without doors has no front)', () => {
+    load(build(['w', 'wall', { doors: 0 }]));
     const { container } = render(<App />);
-    expect(screen.getAllByText('Nema delova.')).toHaveLength(1);
-    const buttons = screen.getAllByRole('button', { name: 'Izvezi CSV' }) as HTMLButtonElement[];
-    expect(buttons.map((b) => b.disabled)).toEqual([false, true, false]);
-    expect(container.querySelectorAll('figure')).toHaveLength(2); // carcass + hdf
+    expect(screen.getAllByRole('button', { name: 'Izvezi CSV' })).toHaveLength(2); // carcass + hdf
+    expect(container.querySelectorAll('figure')).toHaveLength(2);
+    expect(screen.queryByRole('table', { name: /^Front/ })).toBeNull();
   });
 
   it('print button calls window.print', () => {
@@ -155,6 +156,42 @@ describe('ReportStep', () => {
     render(<App />);
     expect(screen.getByRole('heading', { name: 'Shopping list' })).toBeTruthy();
     expect(table('Edge banding')).toBeTruthy();
-    expect(cells(rowWith(table('Carcass'), 'Side')).slice(0, 2)).toEqual(['Side', '720']);
+    expect(cells(rowWith(table('Carcass · 18 mm'), 'Side')).slice(0, 2)).toEqual(['Side', '720']);
+  });
+});
+
+describe('written list', () => {
+  it('the report starts with what to buy, in sentences', () => {
+    load(kitchen(), { decor: { carcass: 'Hrast', front: 'Bela' } });
+    render(<App />);
+    const items = needSentences();
+    expect(items).toContain('4 ploče korpusa (Hrast), 2800 × 2070 × 18 mm');
+    expect(items).toContain('2 ploče fronta (Bela), 2800 × 2070 × 18 mm');
+    expect(items).toContain('2 HDF ploče, 2800 × 2070 × 3 mm');
+    expect(items.some((i) => i?.startsWith('Tanki kant za korpus: '))).toBe(true);
+  });
+
+  it('TXT export: the same list plus the cutting list, next to the CSV files', async () => {
+    load(kitchen(), { decor: { carcass: 'Hrast', front: 'Bela' } });
+    render(<App />);
+    expect(screen.getAllByRole('button', { name: 'Izvezi CSV' })).toHaveLength(3); // CSV is still there
+    fireEvent.click(screen.getByRole('button', { name: 'Izvezi spisak (TXT)' }));
+    expect(filename).toBe('kerfly-spisak.txt');
+    const bytes = await readBytes(blob!);
+    expect([...bytes.slice(0, 3)]).toEqual([0xef, 0xbb, 0xbf]);
+    const text = new TextDecoder().decode(bytes);
+    expect(text).toContain('Treba da kupiš:');
+    expect(text).toContain('• 4 ploče korpusa (Hrast), 2800 × 2070 × 18 mm');
+    expect(text).toContain('KROJNA LISTA');
+    expect(text).toContain('Bok | 720 × 560 mm | 12 kom');
+  });
+
+  it('English', async () => {
+    await i18n.changeLanguage('en');
+    load(kitchen());
+    render(<App />);
+    expect(screen.getByRole('heading', { name: 'You need to buy' })).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Export list (TXT)' })).toBeTruthy();
+    expect(within(screen.getByRole('region', { name: 'You need to buy' })).getAllByRole('listitem').map((li) => li.getAttribute('data-sentence'))).toContain('4 carcass sheets, 2800 × 2070 × 18 mm');
   });
 });

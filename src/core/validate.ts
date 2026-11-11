@@ -1,3 +1,4 @@
+import { boardOfPart } from './boards';
 import { fitsSheet } from './packing';
 import { generateParts } from './parts';
 import { slideLength } from './parts/drawer';
@@ -66,12 +67,12 @@ export function validate(modules: Module[], s: Settings): ValidationResult {
     for (const m of modules) if (m.type === 'wall' && m.D > maxBase) add(warnings, 'wallDeeper', m.id, { D: m.D, baseD: maxBase });
   }
 
-  // Parts larger than the sheet (rotation only for material without grain). Modules whose
+  // Parts larger than the sheet of their board (rotation only for boards without grain). Modules whose
   // part generation would throw (slides don't fit) are already reported above.
   const seen = new Set<string>();
   for (const p of generateParts(modules.filter((m) => !shallow(m)), s)) {
-    const rotate = p.material === 'hdf' || !s.grain[p.material];
-    if (fitsSheet(p, p.material === 'hdf' ? s.hdfSheet : s.sheet, s, rotate)) continue;
+    const board = boardOfPart(s, p);
+    if (fitsSheet(p, board.sheet, s, !board.grain)) continue;
     const key = `${p.moduleId}|${p.nameKey}|${p.L}|${p.Wd}`;
     if (seen.has(key)) continue;
     seen.add(key);

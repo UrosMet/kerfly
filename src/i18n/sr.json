@@ -1,7 +1,9 @@
 {
   "app": {
     "name": "Kerfly",
-    "language": "Jezik"
+    "language": "Jezik",
+    "home": "Početna",
+    "steps": "Koraci"
   },
   "lang": {
     "sr": "Srpski",
@@ -10,7 +12,6 @@
   "steps": {
     "settings": "Podešavanja",
     "builder": "Sastavljanje",
-    "confirm": "Potvrda",
     "report": "Izveštaj"
   },
   "settings": {
@@ -41,7 +42,14 @@
     "grainFront": "Front ima šaru (bez rotacije delova)",
     "subtractEdge": "Oduzmi debljinu kanta od mere sečenja",
     "wallLength": "Dužina zida",
-    "wallLengthHint": "Nije obavezno. Koristi se za proveru dužine donjeg reda."
+    "wallLengthHint": "Nije obavezno. Koristi se za proveru dužine donjeg reda.",
+    "marketCard": "Tržište i jedinice",
+    "construction": "Konstrukcija",
+    "lede": "Ovo važi za ceo projekat. Možeš da ih menjaš i kasnije.",
+    "next": "Dalje",
+    "frontThickness": "Debljina fronta",
+    "hdfThickness": "Debljina HDF-a",
+    "decorPlaceholder": "npr. Iverica Egger bela"
   },
   "builder": {
     "title": "Sastavljanje",
@@ -81,17 +89,14 @@
     "moveRight": "Pomeri desno →",
     "duplicate": "Dupliraj",
     "delete": "Obriši",
-    "close": "Zatvori"
-  },
-  "confirm": {
-    "title": "Potvrda",
-    "errors": "Greške",
-    "warnings": "Upozorenja",
-    "noIssues": "Nema grešaka ni upozorenja.",
-    "noModules": "Dodaj bar jedan element u koraku Sastavljanje.",
-    "blocked": "Ispravi greške da bi nastavio.",
-    "button": "Potvrdi i izračunaj",
-    "plinth": "Sokl"
+    "close": "Zatvori",
+    "lede": "Dodaj elemente, podesi mere i prati crtež. Provera sa strane te odmah upozori na greške.",
+    "palette": "Dodaj element",
+    "emptyTitle": "Kuhinja je prazna",
+    "carcassBoard": "Ploča korpusa (tip i boja)",
+    "frontBoard": "Ploča fronta (tip i boja)",
+    "boardHint": "Upiši tip i boju ploče. Isti naziv u više elemenata je ista ploča, pa se računa zajedno. Debljinu i format ploče menjaš u „Materijali i radna ploča“.",
+    "boardPlaceholder": "Kao u projektu, ili upiši npr. Iverica Egger bela"
   },
   "validation": {
     "width": "{{module}}: širina {{W}} je izvan dozvoljenog opsega.",
@@ -141,7 +146,6 @@
   "report": {
     "title": "Izveštaj",
     "notReady": "Izveštaj nije dostupan. Dodaj elemente i ispravi greške na koraku Potvrda.",
-    "goConfirm": "Idi na Potvrdu",
     "print": "Štampaj",
     "shopping": "Spisak za kupovinu",
     "sheets": "Ploče",
@@ -167,10 +171,17 @@
     "wallHangers": "Vešalice",
     "confirmats": "Konfirmati (procena)",
     "cuttingList": "Krojna lista",
-    "noParts": "Nema delova.",
     "exportCsv": "Izvezi CSV",
     "layouts": "Rasporedi ploča",
-    "sheetN": "Ploča {{n}}"
+    "sheetN": "Ploča {{n}}",
+    "goBuilder": "Idi na Sastavljanje",
+    "lede": "Sve što treba da kupiš i iseceš za ovaj projekat.",
+    "exportText": "Izvezi spisak (TXT)",
+    "kindBoth": "Korpus i front",
+    "thickness": "Debljina",
+    "format": "Format ploče",
+    "worktopDecor": "Dekor",
+    "worktopSize": "Dimenzije komada"
   },
   "project": {
     "export": "Izvezi projekat",
@@ -180,5 +191,136 @@
   },
   "notice": {
     "corner": "Ugaoni elementi nisu podržani u ovoj verziji."
+  },
+  "check": {
+    "errors": "Greške",
+    "warnings": "Upozorenja",
+    "noIssues": "Sve je u redu: nema grešaka ni upozorenja.",
+    "noModules": "Dodaj bar jedan element da bi nastavio.",
+    "blocked": "Ispravi greške da bi nastavio.",
+    "button": "Potvrdi i izračunaj",
+    "plinth": "Sokl",
+    "readyWithWarnings": "Možeš da nastaviš, ali pogledaj upozorenja."
+  },
+  "landing": {
+    "eyebrow": "Planer kuhinje za majstore",
+    "title": "Složi kuhinju. Dobij tačan spisak za kupovinu i sečenje.",
+    "subtitle": "Kerfly pretvara module kuhinje u broj ploča, metre kanta, okove i krojnu listu sa rasporedom po pločama, da ne kupiš nijednu ploču viška ni manjka.",
+    "start": "Počni projekat",
+    "continue": "Nastavi projekat",
+    "howTitle": "Kako radi",
+    "steps": {
+      "one": {
+        "title": "Podesi ploče",
+        "text": "Izaberi tržište, dimenzije ploče, debljinu, dekore, šaru i fugu. Mere možeš da gledaš u milimetrima ili inčima."
+      },
+      "two": {
+        "title": "Sastavi kuhinju",
+        "text": "Dodaj donje, zidne i visoke elemente, fiokare i sudoperu. Menjaj mere i prati crtež sa kotama. Provera odmah javlja greške."
+      },
+      "three": {
+        "title": "Uzmi izveštaj",
+        "text": "Spisak za kupovinu, krojna lista po materijalu (CSV) i raspored delova na svakoj ploči, spreman za štampu."
+      }
+    },
+    "whatTitle": "Šta dobijaš",
+    "features": {
+      "sheets": {
+        "title": "Ploče po dekoru",
+        "text": "Koliko ploča korpusa i fronta i koliko HDF-a, sa iskorišćenjem svake ploče."
+      },
+      "edging": {
+        "title": "Kant u metrima",
+        "text": "Tanki i debeli kant posebno, sa rezervom za sečenje."
+      },
+      "hardware": {
+        "title": "Radna ploča i okovi",
+        "text": "Šarke, vođice, nogice, ručke, nosači polica, vešalice i konfirmati."
+      },
+      "cutting": {
+        "title": "Krojna lista",
+        "text": "Tabela po materijalu sa merama, kantovima i šarom. Izvoz u CSV."
+      },
+      "layouts": {
+        "title": "Raspored po pločama",
+        "text": "Svaki deo je označen nazivom i merom. Raspored je za testeru koja seče od ivice do ivice, sa uračunatim rezom."
+      },
+      "check": {
+        "title": "Provera u hodu",
+        "text": "Deo koji ne staje na ploču, red duži od zida ili fioke koje ne pune visinu: vidiš to pre izračuna."
+      }
+    },
+    "privacyTitle": "Bez naloga i bez servera",
+    "privacyText": "Projekat ostaje u tvom pregledaču. Izvezi ga u JSON fajl i uvezi kad ti zatreba, na bilo kom uređaju.",
+    "limitsTitle": "Ograničenja",
+    "ctaTitle": "Spreman da izračunaš?",
+    "ctaText": "Počni sa prvim elementom. Sve ostalo se računa samo.",
+    "kerfNote": "Kerf je širina reza testere. Uračunata je u svaki raspored."
+  },
+  "need": {
+    "title": "Spisak za kupovinu i krojna lista",
+    "heading": "Treba da kupiš",
+    "hdf_one": "{{count}} HDF ploča, {{size}}",
+    "hdf_few": "{{count}} HDF ploče, {{size}}",
+    "hdf_other": "{{count}} HDF ploča, {{size}}",
+    "edgeThinCarcass": "Tanki kant za korpus: {{amount}}",
+    "edgeThickCarcass": "Debeli kant za korpus: {{amount}}",
+    "edgeThinFront": "Tanki kant za front: {{amount}}",
+    "edgeThickFront": "Debeli kant za front: {{amount}}",
+    "worktop_one": "{{count}} komad radne ploče{{decor}}, {{size}}",
+    "worktop_few": "{{count}} komada radne ploče{{decor}}, {{size}}",
+    "worktop_other": "{{count}} komada radne ploče{{decor}}, {{size}}",
+    "trim": "Zidna lajsna: {{amount}}",
+    "item": "{{label}}: {{qty}}",
+    "pcs": "kom",
+    "kindCarcass": "korpusa",
+    "kindFront": "fronta",
+    "kindBoth": "korpusa i fronta",
+    "sheet_one": "{{count}} ploča {{what}}{{decor}}, {{size}}",
+    "sheet_few": "{{count}} ploče {{what}}{{decor}}, {{size}}",
+    "sheet_other": "{{count}} ploča {{what}}{{decor}}, {{size}}",
+    "sheetItem_one": "ploča {{what}}{{decor}}",
+    "sheetItem_few": "ploče {{what}}{{decor}}",
+    "sheetItem_other": "ploča {{what}}{{decor}}",
+    "hdfItem_one": "HDF ploča",
+    "hdfItem_few": "HDF ploče",
+    "hdfItem_other": "HDF ploča",
+    "worktopItem_one": "komad radne ploče{{decor}}",
+    "worktopItem_few": "komada radne ploče{{decor}}",
+    "worktopItem_other": "komada radne ploče{{decor}}",
+    "titleEdgeThinCarcass": "Tanki kant, korpus",
+    "titleEdgeThickCarcass": "Debeli kant, korpus",
+    "titleEdgeThinFront": "Tanki kant, front",
+    "titleEdgeThickFront": "Debeli kant, front"
+  },
+  "theme": {
+    "toLight": "Svetla tema",
+    "toDark": "Tamna tema"
+  },
+  "materials": {
+    "title": "Materijali i radna ploča",
+    "hint": "Osnovne ploče (korpus, front, HDF) i dekori su u Podešavanjima. Ovde dodaješ još ploča i podešavaš radnu ploču. Ploču elementu dodeljuješ u njegovoj kartici.",
+    "extra_one": "{{count}} dodatna ploča",
+    "extra_few": "{{count}} dodatne ploče",
+    "extra_other": "{{count}} dodatnih ploča",
+    "extraNone": "nema dodatnih ploča",
+    "boardTitle": "Ploča {{n}}",
+    "unnamed": "Ploča {{n}}",
+    "decor": "Tip i boja ploče",
+    "thickness": "Debljina",
+    "sheetLength": "Dužina ploče",
+    "sheetWidth": "Širina ploče",
+    "grain": "Ima šaru (bez rotacije delova)",
+    "add": "Dodaj ploču",
+    "remove": "Ukloni ploču",
+    "defaultCarcass": "Osnovni korpus",
+    "defaultFront": "Osnovni front",
+    "worktopTitle": "Radna ploča",
+    "worktopDecor": "Tip i boja radne ploče",
+    "worktopThickness": "Debljina radne ploče",
+    "worktopLength": "Dužina radne ploče",
+    "worktopDepth": "Dubina radne ploče",
+    "usage": "Elemenata na ovoj ploči: {{count}}",
+    "unused": "Ne koristi se ni u jednom elementu."
   }
 }

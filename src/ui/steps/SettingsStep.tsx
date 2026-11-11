@@ -12,6 +12,7 @@ export default function SettingsStep() {
   const s = useStore((st) => st.settings);
   const setSettings = useStore((st) => st.setSettings);
   const setMarket = useStore((st) => st.setMarket);
+  const setStep = useStore((st) => st.setStep);
 
   // Everything is stored in mm; fields show and accept the selected units.
   const show = (mm: number) => fromMm(mm, s.units);
@@ -20,9 +21,14 @@ export default function SettingsStep() {
 
   return (
     <form className="settings" onSubmit={(e) => e.preventDefault()}>
-      <h2>{t('settings.title')}</h2>
+      <div className="page-head">
+        <h2>{t('settings.title')}</h2>
+        <p className="lede">{t('settings.lede')}</p>
+      </div>
 
+      <div className="settings-grid">
       <fieldset>
+        <legend>{t('settings.marketCard')}</legend>
         <div className="field">
           <label htmlFor="market">{t('settings.market')}</label>
           <select id="market" value={s.market} onChange={(e) => setMarket(e.target.value as Market)}>
@@ -80,15 +86,30 @@ export default function SettingsStep() {
           value={show(s.hdfSheet.width)}
           onCommit={(n) => setSettings({ hdfSheet: { ...s.hdfSheet, width: store(n) } })}
         />
+        <NumberField
+          id="hdf-thickness"
+          label={t('settings.hdfThickness')}
+          unit={unit}
+          value={show(s.hdfT)}
+          onCommit={(n) => setSettings({ hdfT: store(n) })}
+        />
       </fieldset>
 
       <fieldset>
+        <legend>{t('settings.construction')}</legend>
         <NumberField
           id="thickness"
           label={t('settings.thickness')}
           unit={unit}
           value={show(s.t)}
           onCommit={(n) => setSettings({ t: store(n) })}
+        />
+        <NumberField
+          id="front-thickness"
+          label={t('settings.frontThickness')}
+          unit={unit}
+          value={show(s.frontT)}
+          onCommit={(n) => setSettings({ frontT: store(n) })}
         />
         <NumberField
           id="gap"
@@ -115,6 +136,7 @@ export default function SettingsStep() {
           <label htmlFor="decor-carcass">{t('settings.decorCarcass')}</label>
           <input
             id="decor-carcass"
+            placeholder={t('settings.decorPlaceholder')}
             value={s.decor.carcass}
             onChange={(e) => setSettings({ decor: { ...s.decor, carcass: e.target.value } })}
           />
@@ -123,6 +145,7 @@ export default function SettingsStep() {
           <label htmlFor="decor-front">{t('settings.decorFront')}</label>
           <input
             id="decor-front"
+            placeholder={t('settings.decorPlaceholder')}
             value={s.decor.front}
             onChange={(e) => setSettings({ decor: { ...s.decor, front: e.target.value } })}
           />
@@ -152,6 +175,13 @@ export default function SettingsStep() {
           {t('settings.subtractEdge')}
         </label>
       </fieldset>
+      </div>
+
+      <div className="step-actions">
+        <button type="button" className="primary big" onClick={() => setStep(1)}>
+          {t('settings.next')} →
+        </button>
+      </div>
     </form>
   );
 }

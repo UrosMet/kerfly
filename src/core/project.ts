@@ -1,6 +1,7 @@
+import { DEFAULT_IDS } from './boards';
 import { DEFAULT_SETTINGS, MODULE_DEFAULTS } from './defaults';
 import { normalize } from './modules';
-import type { Module, ModuleType, Settings } from './types';
+import type { Board, Module, ModuleType, Settings } from './types';
 
 export interface Project {
   settings: Settings;
@@ -40,6 +41,31 @@ function group<T extends object>(raw: Record<string, unknown>, key: string, fiel
   return out;
 }
 
+function parseBoards(raw: unknown): Board[] {
+  if (raw === undefined) return [];
+  if (!Array.isArray(raw)) return fail('settings.boards');
+  const ids = new Set<string>(DEFAULT_IDS); // the default ids are taken
+  return raw.map((b, i): Board => {
+    const at = `settings.boards[${i}]`;
+    if (!isObj(b)) return fail(at);
+    const id = pick(`${at}.id`, b.id, str);
+    if (!id || ids.has(id)) fail(`${at}.id`);
+    ids.add(id);
+    const field = <T>(key: string, ok: (x: unknown) => x is T, fallback: T): T => (b[key] === undefined ? fallback : pick(`${at}.${key}`, b[key], ok));
+    const sheet = isObj(b.sheet) ? b.sheet : b.sheet === undefined ? {} : fail(`${at}.sheet`);
+    return {
+      id,
+      name: field('name', str, ''),
+      thickness: field('thickness', positive, DEFAULT_SETTINGS.t),
+      sheet: {
+        length: sheet.length === undefined ? DEFAULT_SETTINGS.sheet.length : pick(`${at}.sheet.length`, sheet.length, positive),
+        width: sheet.width === undefined ? DEFAULT_SETTINGS.sheet.width : pick(`${at}.sheet.width`, sheet.width, positive),
+      },
+      grain: field('grain', bool, false),
+    };
+  });
+}
+
 function parseSettings(raw: unknown): Settings {
   if (raw === undefined) return DEFAULT_SETTINGS;
   if (!isObj(raw)) return fail('settings');
@@ -53,13 +79,15 @@ function parseSettings(raw: unknown): Settings {
   set('plinth', oneOf('none', 'board', 'pvc'));
   set('subtractEdge', bool);
   for (const k of ['kerf', 'trim', 'edgeThin', 'edgeThick', 'plinthHeight', 'gap'] as const) set(k, nonNegative);
-  for (const k of ['t', 'worktopLength', 'worktopDepth'] as const) set(k, positive);
+  for (const k of ['t', 'frontT', 'hdfT', 'worktopT', 'worktopLength', 'worktopDepth'] as const) set(k, positive);
+  set('worktopDecor', str);
   set('wallLength', positive);
 
   s.sheet = group(raw, 'sheet', { length: positive, width: positive }, DEFAULT_SETTINGS.sheet);
   s.hdfSheet = group(raw, 'hdfSheet', { length: positive, width: positive }, DEFAULT_SETTINGS.hdfSheet);
   s.grain = group(raw, 'grain', { carcass: bool, front: bool }, DEFAULT_SETTINGS.grain);
   s.decor = group(raw, 'decor', { carcass: str, front: str }, DEFAULT_SETTINGS.decor);
+  s.boards = parseBoards(raw.boards);
   return s;
 }
 
@@ -94,6 +122,8 @@ function parseModules(raw: unknown): Module[] {
       out.drawers = [...(m.drawers as number[])];
     } else if (d.drawers) out.drawers = [...d.drawers];
     if (m.doorSplitH !== undefined) out.doorSplitH = pick(`${at}.doorSplitH`, m.doorSplitH, positive);
+    if (m.carcassBoard !== undefined) out.carcassBoard = pick(`${at}.carcassBoard`, m.carcassBoard, str);
+    if (m.frontBoard !== undefined) out.frontBoard = pick(`${at}.frontBoard`, m.frontBoard, str);
     return out;
   });
   return normalize(modules);

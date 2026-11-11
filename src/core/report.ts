@@ -1,12 +1,17 @@
 import { edgeMeters, type EdgeMeters } from './edging';
 import { generateHardware, type Hardware } from './hardware';
-import { packAll, type PackResult } from './packing';
+import { packBoards, type BoardPack } from './packing';
 import { generateParts } from './parts';
-import type { EdgeType, MaterialKey, Module, Part, Settings } from './types';
+import type { Board, EdgeType, MaterialKey, Module, Part, Settings, SheetSize } from './types';
 import { validate, type Issue } from './validate';
 
+/** One line of the shopping list: the sheets to buy of one board. */
 export interface SheetLine {
-  decor?: string; // carcass and front only
+  boardId: string;
+  name: string; // decor, may be empty
+  thickness: number;
+  sheet: SheetSize;
+  kinds: MaterialKey[]; // what is cut from it: carcass, front, hdf
   count: number;
   utilization: number; // average % over the sheets
 }
@@ -18,20 +23,33 @@ export interface CutRow {
   edges: Part['edges'];
   grain: boolean; // true = must not be rotated
 }
+/** The cutting list of one board. */
+export interface CutTable {
+  board: Board;
+  kinds: MaterialKey[];
+  rows: CutRow[];
+}
+export type WorktopLine = Hardware['worktop'] & {
+  decor: string;
+  thickness: number;
+  length: number;
+  depth: number;
+};
 export interface Report {
   shopping: {
-    sheets: Record<MaterialKey, SheetLine>;
+    sheets: SheetLine[];
     edging: EdgeMeters;
-    worktop: Hardware['worktop'];
+    worktop: WorktopLine;
     hardware: Omit<Hardware, 'worktop'>;
   };
-  cuttingList: Record<MaterialKey, CutRow[]>;
-  layouts: Record<MaterialKey, PackResult>; // placement.partRef indexes layouts[m].parts
+  cuttingList: CutTable[]; // same order as shopping.sheets and layouts
+  layouts: BoardPack[]; // placement.partRef indexes layouts[i].result.parts
   warnings: Issue[];
 }
 
-const MATERIALS: MaterialKey[] = ['carcass', 'front', 'hdf'];
+const KIND_ORDER: MaterialKey[] = ['carcass', 'front', 'hdf'];
 const round2 = (n: number) => Math.round(n * 100) / 100;
+const kindsOf = (parts: Part[]) => KIND_ORDER.filter((k) => parts.some((p) => p.material === k));
 
 /** Throws if the project has validation errors. Sizes are cut sizes (subtractEdge applied). */
 export function buildReport(modules: Module[], s: Settings): Report {
@@ -39,32 +57,47 @@ export function buildReport(modules: Module[], s: Settings): Report {
   if (errors.length) throw new Error(`Invalid project: ${errors.map((e) => e.code).join(', ')}`);
 
   const parts = generateParts(modules, s);
-  const layouts = packAll(parts, s);
+  const layouts = packBoards(parts, s);
   const { worktop, ...hardware } = generateHardware(modules, s);
 
-  const sheets = {} as Report['shopping']['sheets'];
-  const cuttingList = {} as Report['cuttingList'];
-  for (const m of MATERIALS) {
-    const list = layouts[m].sheets;
-    sheets[m] = {
-      ...(m !== 'hdf' && { decor: s.decor[m] }),
-      count: list.length,
-      utilization: list.length ? list.reduce((a, sh) => a + sh.utilization, 0) / list.length : 0,
-    };
+  const sheets: SheetLine[] = [];
+  const cuttingList: CutTable[] = [];
+  for (const { board, result } of layouts) {
+    const kinds = kindsOf(result.parts);
+    const n = result.sheets.length;
+    sheets.push({
+      boardId: board.id,
+      name: board.name,
+      thickness: board.thickness,
+      sheet: board.sheet,
+      kinds,
+      count: n,
+      utilization: n ? result.sheets.reduce((a, sh) => a + sh.utilization, 0) / n : 0,
+    });
 
     const rows = new Map<string, CutRow>();
-    for (const p of layouts[m].parts) {
+    for (const p of result.parts) {
       const L = round2(p.L);
       const Wd = round2(p.Wd);
       const key = [p.nameKey, L, Wd, p.edges.L1, p.edges.L2, p.edges.W1, p.edges.W2].join('|');
       const row = rows.get(key);
       if (row) row.qty += p.qty;
-      else rows.set(key, { nameKey: p.nameKey, L, Wd, qty: p.qty, edges: p.edges, grain: m !== 'hdf' && s.grain[m] });
+      else rows.set(key, { nameKey: p.nameKey, L, Wd, qty: p.qty, edges: p.edges, grain: board.grain });
     }
-    cuttingList[m] = [...rows.values()];
+    cuttingList.push({ board, kinds, rows: [...rows.values()] });
   }
 
-  return { shopping: { sheets, edging: edgeMeters(parts, s), worktop, hardware }, cuttingList, layouts, warnings };
+  return {
+    shopping: {
+      sheets,
+      edging: edgeMeters(parts, s),
+      worktop: { ...worktop, decor: s.worktopDecor, thickness: s.worktopT, length: s.worktopLength, depth: s.worktopDepth },
+      hardware,
+    },
+    cuttingList,
+    layouts,
+    warnings,
+  };
 }
 
 const CSV_COLUMNS = ['name', 'length', 'width', 'qty', 'L1', 'L2', 'W1', 'W2', 'grain'];
@@ -75,7 +108,7 @@ const csvField = (v: string | number) => {
 };
 
 /**
- * CSV of one material's cutting list: name, length, width, qty, edges L1 L2 W1 W2, grain.
+ * CSV of one board's cutting list: name, length, width, qty, edges L1 L2 W1 W2, grain.
  * `t` translates header keys ("csv.name"...), part names, edge types ("edge.thin") and the
  * grain flag ("csv.grainYes" / "csv.grainNo"); the default returns the keys.
  */

@@ -15,6 +15,7 @@ const seed = () =>
       settings: { ...DEFAULT_SETTINGS, wallLength: 2500 },
       modules: addModule(addModule([], 'base', 'a'), 'wall', 'w'),
       step: 0,
+      started: true,
       selectedId: null,
     }),
   );
@@ -38,7 +39,7 @@ beforeEach(async () => {
   vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(function (this: HTMLAnchorElement) {
     filename = this.download;
   });
-  useStore.setState({ settings: DEFAULT_SETTINGS, modules: [], step: 0, selectedId: null });
+  useStore.setState({ settings: DEFAULT_SETTINGS, modules: [], step: 0, started: true, selectedId: null });
   await i18n.changeLanguage('sr');
 });
 afterEach(() => {
@@ -118,7 +119,7 @@ describe('corner cabinets notice', () => {
     render(<App />);
     act(() => st().setStep(1));
     expect(screen.getByRole('note').textContent).toBe('Ugaoni elementi nisu podržani u ovoj verziji.');
-    act(() => st().setStep(3));
+    act(() => st().setStep(2));
     expect(screen.getByRole('note').textContent).toBe('Ugaoni elementi nisu podržani u ovoj verziji.');
     await act(() => i18n.changeLanguage('en'));
     expect(screen.getByRole('note').textContent).toBe('Corner cabinets are not supported in this version.');
@@ -131,7 +132,7 @@ describe('units everywhere', () => {
     act(() => {
       st().addModule('drawer');
       st().setSettings({ units: 'in' });
-      st().setStep(3);
+      st().setStep(2);
     });
     render(<App />);
     const text = document.body.textContent!;
@@ -145,7 +146,7 @@ describe('units everywhere', () => {
     seed();
     act(() => {
       st().addModule('drawer');
-      st().setStep(3);
+      st().setStep(2);
     });
     render(<App />);
     const text = document.body.textContent!;
@@ -155,7 +156,7 @@ describe('units everywhere', () => {
     expect(text).not.toContain(' in');
   });
 
-  it.each([0, 1, 2, 3])('step %i in inches shows no millimeters', (step) => {
+  it.each([0, 1, 2])('step %i in inches shows no millimeters', (step) => {
     seed();
     act(() => {
       st().addModule('drawer');

@@ -14,7 +14,7 @@ const type = (label: string, v: string) => fireEvent.change(screen.getByLabelTex
 
 beforeEach(async () => {
   localStorage.clear();
-  useStore.setState({ settings: DEFAULT_SETTINGS, modules: [], step: 1, selectedId: null });
+  useStore.setState({ settings: DEFAULT_SETTINGS, modules: [], step: 1, started: true, selectedId: null });
   await i18n.changeLanguage('sr');
 });
 afterEach(cleanup);

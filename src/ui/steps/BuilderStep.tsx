@@ -8,6 +8,9 @@ import { validate } from '../../core/validate';
 import { useStore } from '../../store';
 import KitchenElevation from '../components/KitchenElevation';
 import ModuleCard from '../components/ModuleCard';
+import MaterialsPanel from '../components/MaterialsPanel';
+import ModuleIcon from '../components/ModuleIcon';
+import { ConfirmBar, IssueList } from '../components/ValidationPanel';
 import { dimNum } from '../format';
 
 const TYPES = Object.keys(MODULE_DEFAULTS) as ModuleType[];
@@ -48,7 +51,8 @@ export default function BuilderStep() {
   const add = useStore((st) => st.addModule);
 
   const selected = modules.find((m) => m.id === selectedId);
-  const { errors, warnings } = useMemo(() => validate(modules, settings), [modules, settings]);
+  const result = useMemo(() => validate(modules, settings), [modules, settings]);
+  const { errors, warnings } = result;
 
   const sum = rowModules(modules, 'lower').reduce((a, m) => a + m.W, 0);
   const wall = settings.wallLength;
@@ -62,30 +66,48 @@ export default function BuilderStep() {
 
   return (
     <section className="builder">
-      <h2>{t('builder.title')}</h2>
+      <div className="page-head">
+        <h2>{t('builder.title')}</h2>
+        <p className="lede">{t('builder.lede')}</p>
+      </div>
       <p className="notice" role="note">
         {t('notice.corner')}
       </p>
 
-      <div className="add-buttons">
-        {TYPES.map((type) => (
-          <button key={type} type="button" onClick={() => add(type)}>
-            + {t(`builder.types.${type}`)}
-          </button>
-        ))}
+      <div className="builder-main">
+          <div className="palette" role="group" aria-label={t('builder.palette')}>
+            {TYPES.map((type) => (
+              <button key={type} type="button" onClick={() => add(type)}>
+                <ModuleIcon type={type} />+ {t(`builder.types.${type}`)}
+              </button>
+            ))}
+          </div>
+
+          <p className={`row-sum${status ? ` ${status.kind}` : ''}`} role="status">
+            {wall === undefined ? t('builder.rowSum', { sum: fmt(sum) }) : t('builder.rowSumWall', { sum: fmt(sum), wall: fmt(wall) })}
+            {status && <> — {status.text}</>}
+          </p>
+
+          <IssueList result={result} />
+
+          {modules.length > 0 ? (
+            <KitchenElevation />
+          ) : (
+            <div className="empty-state card">
+              <h3>{t('builder.emptyTitle')}</h3>
+              <p className="hint">{t('builder.empty')}</p>
+            </div>
+          )}
+
+          <RowStrip row="upper" />
+          <RowStrip row="lower" />
+
+          {selected ? <ModuleCard key={selected.id} module={selected} /> : modules.length > 0 && <p className="hint">{t('builder.noSelection')}</p>}
+
+          <MaterialsPanel />
       </div>
 
-      <p className={`row-sum${status ? ` ${status.kind}` : ''}`} role="status">
-        {wall === undefined ? t('builder.rowSum', { sum: fmt(sum) }) : t('builder.rowSumWall', { sum: fmt(sum), wall: fmt(wall) })}
-        {status && <> — {status.text}</>}
-      </p>
-
-      {modules.length > 0 ? <KitchenElevation /> : <p className="hint">{t('builder.empty')}</p>}
-
-      <RowStrip row="upper" />
-      <RowStrip row="lower" />
-
-      {selected ? <ModuleCard key={selected.id} module={selected} /> : modules.length > 0 && <p className="hint">{t('builder.noSelection')}</p>}
+      <ConfirmBar result={result} />
     </section>
   );
 }

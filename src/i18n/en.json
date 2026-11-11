@@ -1,7 +1,9 @@
 {
   "app": {
     "name": "Kerfly",
-    "language": "Language"
+    "language": "Language",
+    "home": "Home",
+    "steps": "Steps"
   },
   "lang": {
     "sr": "Srpski",
@@ -10,7 +12,6 @@
   "steps": {
     "settings": "Settings",
     "builder": "Builder",
-    "confirm": "Confirm",
     "report": "Report"
   },
   "settings": {
@@ -41,7 +42,14 @@
     "grainFront": "Front has grain (parts are not rotated)",
     "subtractEdge": "Subtract edge banding thickness from the cut size",
     "wallLength": "Wall length",
-    "wallLengthHint": "Optional. Used to check the length of the lower row."
+    "wallLengthHint": "Optional. Used to check the length of the lower row.",
+    "marketCard": "Market and units",
+    "construction": "Construction",
+    "lede": "These apply to the whole project. You can change them later.",
+    "next": "Next",
+    "frontThickness": "Front thickness",
+    "hdfThickness": "HDF thickness",
+    "decorPlaceholder": "e.g. Egger white chipboard"
   },
   "builder": {
     "title": "Builder",
@@ -81,17 +89,14 @@
     "moveRight": "Move right →",
     "duplicate": "Duplicate",
     "delete": "Delete",
-    "close": "Close"
-  },
-  "confirm": {
-    "title": "Confirm",
-    "errors": "Errors",
-    "warnings": "Warnings",
-    "noIssues": "No errors or warnings.",
-    "noModules": "Add at least one cabinet in the Builder step.",
-    "blocked": "Fix the errors to continue.",
-    "button": "Confirm and calculate",
-    "plinth": "Plinth"
+    "close": "Close",
+    "lede": "Add cabinets, set their sizes and follow the drawing. The check on the side flags problems right away.",
+    "palette": "Add a cabinet",
+    "emptyTitle": "The kitchen is empty",
+    "carcassBoard": "Carcass board (type and color)",
+    "frontBoard": "Front board (type and color)",
+    "boardHint": "Type the type and color of the board. The same name in several cabinets is the same board, so they are counted together. Change thickness and sheet size in “Materials and worktop”.",
+    "boardPlaceholder": "Same as the project, or type e.g. Egger white chipboard"
   },
   "validation": {
     "width": "{{module}}: width {{W}} is out of the allowed range.",
@@ -141,7 +146,6 @@
   "report": {
     "title": "Report",
     "notReady": "The report is not available. Add cabinets and fix the errors in the Confirm step.",
-    "goConfirm": "Go to Confirm",
     "print": "Print",
     "shopping": "Shopping list",
     "sheets": "Sheets",
@@ -167,10 +171,17 @@
     "wallHangers": "Wall hangers",
     "confirmats": "Confirmat screws (estimate)",
     "cuttingList": "Cutting list",
-    "noParts": "No parts.",
     "exportCsv": "Export CSV",
     "layouts": "Sheet layouts",
-    "sheetN": "Sheet {{n}}"
+    "sheetN": "Sheet {{n}}",
+    "goBuilder": "Go to Builder",
+    "lede": "Everything you need to buy and cut for this project.",
+    "exportText": "Export list (TXT)",
+    "kindBoth": "Carcass and front",
+    "thickness": "Thickness",
+    "format": "Sheet size",
+    "worktopDecor": "Decor",
+    "worktopSize": "Piece size"
   },
   "project": {
     "export": "Export project",
@@ -180,5 +191,129 @@
   },
   "notice": {
     "corner": "Corner cabinets are not supported in this version."
+  },
+  "check": {
+    "errors": "Errors",
+    "warnings": "Warnings",
+    "noIssues": "All good: no errors or warnings.",
+    "noModules": "Add at least one cabinet to continue.",
+    "blocked": "Fix the errors to continue.",
+    "button": "Confirm and calculate",
+    "plinth": "Plinth",
+    "readyWithWarnings": "You can continue, but have a look at the warnings."
+  },
+  "landing": {
+    "eyebrow": "Kitchen planner for cabinet makers",
+    "title": "Design your kitchen. Get the exact shopping and cutting list.",
+    "subtitle": "Kerfly turns your kitchen modules into a sheet count, edge banding meters, hardware and a cutting list with a layout for every sheet, so you never buy a sheet too many or too few.",
+    "start": "Start a project",
+    "continue": "Continue project",
+    "howTitle": "How it works",
+    "steps": {
+      "one": {
+        "title": "Set up the sheets",
+        "text": "Pick the market, sheet size, thickness, decors, grain and front gap. Show sizes in millimeters or inches."
+      },
+      "two": {
+        "title": "Build the kitchen",
+        "text": "Add base, wall and tall cabinets, drawer units and the sink. Edit sizes and follow the drawing with dimensions. The check flags errors right away."
+      },
+      "three": {
+        "title": "Get the report",
+        "text": "A shopping list, a cutting list per material (CSV) and a layout of the parts on every sheet, ready to print."
+      }
+    },
+    "whatTitle": "What you get",
+    "features": {
+      "sheets": {
+        "title": "Sheets per decor",
+        "text": "How many carcass and front sheets and how much HDF, with the utilization of every sheet."
+      },
+      "edging": {
+        "title": "Edge banding in meters",
+        "text": "Thin and thick banding separately, with an allowance for cutting."
+      },
+      "hardware": {
+        "title": "Worktop and hardware",
+        "text": "Hinges, slides, legs, handles, shelf pins, wall hangers and confirmat screws."
+      },
+      "cutting": {
+        "title": "Cutting list",
+        "text": "A table per material with sizes, edges and grain. Export to CSV."
+      },
+      "layouts": {
+        "title": "Sheet layouts",
+        "text": "Every part is labeled with its name and size. Layouts are made for a saw that cuts edge to edge, with the kerf included."
+      },
+      "check": {
+        "title": "Checks as you go",
+        "text": "A part that does not fit the sheet, a row longer than the wall or drawers that do not fill the height: you see it before you calculate."
+      }
+    },
+    "privacyTitle": "No account, no server",
+    "privacyText": "Your project stays in your browser. Export it to a JSON file and import it when you need it, on any device.",
+    "limitsTitle": "Limitations",
+    "ctaTitle": "Ready to calculate?",
+    "ctaText": "Start with the first cabinet. Everything else is calculated for you.",
+    "kerfNote": "Kerf is the width of the saw cut. It is included in every layout."
+  },
+  "need": {
+    "title": "Shopping list and cutting list",
+    "heading": "You need to buy",
+    "hdf_one": "{{count}} HDF sheet, {{size}}",
+    "hdf_other": "{{count}} HDF sheets, {{size}}",
+    "edgeThinCarcass": "Thin edge banding for the carcass: {{amount}}",
+    "edgeThickCarcass": "Thick edge banding for the carcass: {{amount}}",
+    "edgeThinFront": "Thin edge banding for the fronts: {{amount}}",
+    "edgeThickFront": "Thick edge banding for the fronts: {{amount}}",
+    "worktop_one": "{{count}} piece of worktop{{decor}}, {{size}}",
+    "worktop_other": "{{count}} pieces of worktop{{decor}}, {{size}}",
+    "trim": "Wall trim: {{amount}}",
+    "item": "{{label}}: {{qty}}",
+    "pcs": "pcs",
+    "kindCarcass": "carcass",
+    "kindFront": "front",
+    "kindBoth": "carcass and front",
+    "sheet_one": "{{count}} {{what}} sheet{{decor}}, {{size}}",
+    "sheet_other": "{{count}} {{what}} sheets{{decor}}, {{size}}",
+    "sheetItem_one": "{{what}} sheet{{decor}}",
+    "sheetItem_other": "{{what}} sheets{{decor}}",
+    "hdfItem_one": "HDF sheet",
+    "hdfItem_other": "HDF sheets",
+    "worktopItem_one": "piece of worktop{{decor}}",
+    "worktopItem_other": "pieces of worktop{{decor}}",
+    "titleEdgeThinCarcass": "Thin edge banding, carcass",
+    "titleEdgeThickCarcass": "Thick edge banding, carcass",
+    "titleEdgeThinFront": "Thin edge banding, fronts",
+    "titleEdgeThickFront": "Thick edge banding, fronts"
+  },
+  "theme": {
+    "toLight": "Light theme",
+    "toDark": "Dark theme"
+  },
+  "materials": {
+    "title": "Materials and worktop",
+    "hint": "The default boards (carcass, front, HDF) and decors are set in Settings. Here you add more boards and set up the worktop. You assign a board to a cabinet in its card.",
+    "extra_one": "{{count}} extra board",
+    "extra_other": "{{count}} extra boards",
+    "extraNone": "no extra boards",
+    "boardTitle": "Board {{n}}",
+    "unnamed": "Board {{n}}",
+    "decor": "Board type and color",
+    "thickness": "Thickness",
+    "sheetLength": "Sheet length",
+    "sheetWidth": "Sheet width",
+    "grain": "Has grain (parts are not rotated)",
+    "add": "Add board",
+    "remove": "Remove board",
+    "defaultCarcass": "Default carcass",
+    "defaultFront": "Default front",
+    "worktopTitle": "Worktop",
+    "worktopDecor": "Worktop type and color",
+    "worktopThickness": "Worktop thickness",
+    "worktopLength": "Worktop length",
+    "worktopDepth": "Worktop depth",
+    "usage": "Cabinets on this board: {{count}}",
+    "unused": "Not used by any cabinet."
   }
 }

@@ -29,7 +29,32 @@ export default function KitchenElevation() {
       if (m.doors === 2) lines.push([b.x + b.w / 2, top, b.x + b.w / 2, top + b.h]);
       if (m.type === 'tall' && m.doorSplitH) lines.push([b.x, sy(b.y + m.doorSplitH), b.x + b.w, sy(b.y + m.doorSplitH)]);
     }
-    return lines.map(([x1, y1, x2, y2], i) => <line key={i} x1={x1} y1={y1} x2={x2} y2={y2} className="detail" />);
+    const handles: [number, number, number, number][] = [];
+    const hl = Math.min(b.w * 0.12, 120);
+    if (m.type === 'drawer') {
+      let y = top;
+      for (const h of m.drawers ?? []) {
+        handles.push([b.x + b.w / 2 - hl, y + h / 2, b.x + b.w / 2 + hl, y + h / 2]);
+        y += h + s.gap;
+      }
+    } else if (m.doors > 0) {
+      const dw = b.w / m.doors;
+      const hy = m.type === 'wall' ? top + b.h - 140 : top + 140;
+      for (let d = 0; d < m.doors; d++) {
+        const hx = m.doors === 2 ? (d === 0 ? b.x + dw - 40 : b.x + dw + 40) : b.x + b.w - 50;
+        handles.push([hx, hy, hx, hy + 120]);
+      }
+    }
+    return (
+      <>
+        {lines.map(([x1, y1, x2, y2], i) => (
+          <line key={i} x1={x1} y1={y1} x2={x2} y2={y2} className="detail" />
+        ))}
+        {handles.map(([x1, y1, x2, y2], i) => (
+          <line key={`h${i}`} x1={x1} y1={y1} x2={x2} y2={y2} className="handle" />
+        ))}
+      </>
+    );
   };
 
   const dim = (b: Box, y: number) => (

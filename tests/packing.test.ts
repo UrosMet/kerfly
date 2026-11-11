@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { packAll, packMaterial, type PackResult } from '../src/core/packing';
-import type { Part } from '../src/core/types';
+import { packBoards, packMaterial, type PackResult } from '../src/core/packing';
+import type { Board, Part } from '../src/core/types';
 import { settings } from './helpers';
 
 const sheet = settings.sheet; // 2800 x 2070
@@ -111,17 +111,62 @@ describe('packMaterial', () => {
   });
 });
 
-describe('packAll', () => {
-  it('packs materials separately; grain flags apply to carcass/front only', () => {
-    const parts = [part(2000, 2700, 1, 'hdf'), part(500, 500, 2, 'carcass'), part(500, 500, 1, 'front')];
-    const r = packAll(parts, { ...settings, grain: { carcass: true, front: true } });
-    expect(r.carcass.sheets[0].placements).toHaveLength(2);
-    expect(r.front.sheets[0].placements).toHaveLength(1);
-    expect(r.hdf.sheets[0].placements[0].rotated).toBe(true); // hdf never has grain
+describe('packBoards', () => {
+  const board = (over: Partial<Board> = {}): Board => ({ id: 'x', name: 'Bela', thickness: 19, sheet: { length: 2800, width: 2070 }, grain: false, ...over });
+  const on = (p: Part, id: string): Part => ({ ...p, board: id });
+  const ids = (parts: Part[], s = settings) => packBoards(parts, s).map((b) => b.board.id);
+
+  it('one group per board, in the order carcass, front, extra boards, hdf; boards without parts are left out', () => {
+    const s = { ...settings, boards: [board()] };
+    const parts = [part(500, 500, 1, 'hdf'), on(part(500, 500), 'x'), part(500, 500, 1, 'front'), part(500, 500)];
+    expect(ids(parts, s)).toEqual(['carcass', 'front', 'x', 'hdf']);
+    expect(ids([part(500, 500, 1, 'front')], s)).toEqual(['front']);
+    expect(packBoards([], s)).toEqual([]);
   });
 
-  it('uses hdfSheet for hdf', () => {
+  it('parts cut from the same board share its sheets, even carcass and front parts', () => {
+    // 2 x 1400x1000 fit one sheet together only if packed together
+    const carcass = part(1400, 1000, 1, 'carcass');
+    const front = { ...part(1400, 1000, 1, 'front'), board: 'carcass' };
+    const r = packBoards([carcass, front], settings);
+    expect(r).toHaveLength(1);
+    expect(r[0].result.sheets).toHaveLength(1);
+    expect(r[0].result.sheets[0].placements).toHaveLength(2);
+  });
+
+  it('different boards never share a sheet', () => {
+    const s = { ...settings, boards: [board()] };
+    const r = packBoards([part(500, 500), on(part(500, 500), 'x')], s);
+    expect(r.map((b) => b.result.sheets.length)).toEqual([1, 1]);
+  });
+
+  it('a board that no longer exists falls back to the default board of its material', () => {
+    expect(ids([on(part(500, 500), 'gone'), on(part(500, 500, 1, 'front'), 'gone')])).toEqual(['carcass', 'front']);
+  });
+
+  it('every board has its own sheet size', () => {
+    const s = { ...settings, boards: [board({ sheet: { length: 1000, width: 1000 } })] };
+    expect(() => packBoards([on(part(1200, 100), 'x')], s)).toThrow(RangeError);
+    const r = packBoards([on(part(900, 900), 'x'), part(1200, 100)], s);
+    expect(r.find((b) => b.board.id === 'x')!.board.sheet).toEqual({ length: 1000, width: 1000 });
+    expect(r.find((b) => b.board.id === 'carcass')!.result.sheets).toHaveLength(1);
+  });
+
+  it('grain of a board stops rotation; HDF has no grain', () => {
+    const tall = part(2000, 2700); // fits only rotated
+    expect(() => packBoards([on(tall, 'x')], { ...settings, boards: [board({ grain: true })] })).toThrow(RangeError);
+    expect(packBoards([on(tall, 'x')], { ...settings, boards: [board({ grain: false })] })[0].result.sheets[0].placements[0].rotated).toBe(true);
+    expect(packBoards([part(2000, 2700, 1, 'hdf')], settings)[0].result.sheets[0].placements[0].rotated).toBe(true);
+  });
+
+  it('the default boards take their grain from the settings', () => {
+    const s = { ...settings, grain: { carcass: true, front: false } };
+    expect(() => packBoards([part(2000, 2700, 1, 'carcass')], s)).toThrow(RangeError);
+    expect(packBoards([part(2000, 2700, 1, 'front')], s)[0].result.sheets).toHaveLength(1);
+  });
+
+  it('HDF uses hdfSheet', () => {
     const s = { ...settings, hdfSheet: { length: 1000, width: 1000 } };
-    expect(() => packAll([part(1200, 100, 1, 'hdf')], s)).toThrow(RangeError);
+    expect(() => packBoards([part(1200, 100, 1, 'hdf')], s)).toThrow(RangeError);
   });
 });
