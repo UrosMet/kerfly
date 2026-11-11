@@ -247,3 +247,19 @@ Corner modules (show an explicit note to the user), AI sketch recognition, price
 5. UI: Settings + Builder with elevation SVG
 6. UI: Confirm + Report + sheet layouts + CSV + print
 7. i18n completion (sr, en), unit switching, polish
+
+## Project state (v3)
+
+The plan above is still the source of truth for the part formulas, edge banding, hardware and packing rules. What was built, and what is not obvious from the file names:
+
+- **Commands:** `npm run dev`, `npm test`, `npm run build` (tsc + vite), `npm run deploy` (publishes `dist/` to the `gh-pages` branch by hand).
+- **Pipeline:** `Settings` + `Module[]` → `generateParts` (`core/parts`, every part is tagged with the id of the board it is cut from) → `packBoards` (guillotine packing per board) → `buildReport` (shopping list, a cutting list per board, layouts) → UI (`ReportStep`; `ui/reportText.ts` writes the same list as sentences and as the TXT export).
+- **Boards:** the default carcass, front and HDF boards are built from the flat settings (`sheet`, `t`, `decor`, `grain`, ...). Extra boards live in `settings.boards`. A cabinet picks `carcassBoard`, `frontBoard` and `hdfBoard`; typing a name in its card goes through `assignBoardByName` (same name = same board; boards made that way are removed again when unused). The carcass thickness of a cabinet comes from its carcass board.
+- **Edge banding:** per board (`board.edge`, else `edgeName` of the defaults); lines with the same banding name are bought together (`core/edging.ts`). `subtractEdge` uses the banding thickness of the part's own board.
+- **Handles:** a catalog in `settings.handles` with `defaultHandle`; `module.handle` is a handle id or `"none"`.
+- **Colors:** a fixed palette of named colors (`core/palette.ts`); boards store the key. The drawing paints a cabinet in the color of its fronts.
+- **UI:** a landing page (`store.started`), then three steps: Settings, Builder (with the check and the confirm bar), Report. Light and dark theme (`ui/theme.ts`). Everything the user sees goes through i18n (`sr` and `en`); `tests/app.test.tsx` checks that both files have the same keys (plural suffixes aside).
+- **Saved projects:** `core/project.ts` validates everything strictly. When a setting or a module field is added, extend `parseProject` and its tests, and give old files a default.
+- **Tests:** `tests/*.test.ts` run in node, `tests/*.test.tsx` in jsdom with Testing Library (`// @vitest-environment jsdom` on top). `tests/helpers.ts` has `mod()` and `settings`.
+- **Deploy:** `.github/workflows/pages.yml` tests, builds and publishes to GitHub Pages on every push to `main`. Pushing a workflow file needs a token with the `workflow` scope (`gh auth refresh -h github.com -s workflow`).
+- **Not built:** corner cabinets, prices, accounts, 3D view, worktop color, handle count per front.
