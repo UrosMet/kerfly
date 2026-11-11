@@ -31,4 +31,4 @@ Svaki push na `main` pokreće GitHub Actions (`.github/workflows/pages.yml`): te
 
 ## Licenca
 
-Još nije izabrana.
+[MIT](LICENSE): kod može slobodno da se koristi i menja, uz zadržavanje napomene o autorstvu.
