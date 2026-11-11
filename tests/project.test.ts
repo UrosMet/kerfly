@@ -5,7 +5,7 @@ import { ProjectError, parseProject, parseProjectText, serializeProject } from '
 import type { Module } from '../src/core/types';
 
 const modules = (): Module[] => ['base', 'drawer', 'wall', 'tall'].reduce<Module[]>((m, t, i) => addModule(m, t as Module['type'], `id${i}`), []);
-const project = () => ({ settings: { ...DEFAULT_SETTINGS, wallLength: 3000, decor: { carcass: 'Hrast', front: 'Bela' } }, modules: modules() });
+const project = () => ({ settings: { ...DEFAULT_SETTINGS, wallLength: 3000, decor: { carcass: 'Hrast', front: 'Bela', hdf: '' } }, modules: modules() });
 const bad = (data: unknown, path: string) => expect(() => parseProject(data)).toThrow(new ProjectError(path));
 
 describe('project JSON', () => {

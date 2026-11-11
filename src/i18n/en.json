@@ -49,7 +49,23 @@
     "next": "Next",
     "frontThickness": "Front thickness",
     "hdfThickness": "HDF thickness",
-    "decorPlaceholder": "e.g. Egger white chipboard"
+    "decorPlaceholder": "e.g. Egger white chipboard",
+    "decorHdf": "HDF type and color",
+    "edgeTitle": "Edge banding",
+    "edgeThin": "Thin banding thickness",
+    "edgeThick": "Thick banding thickness",
+    "edgeNameCarcass": "Carcass edge banding (type and color)",
+    "edgeNameFront": "Front edge banding (type and color)",
+    "edgePlaceholder": "Same as the board",
+    "handlesTitle": "Handles",
+    "handlePlaceholder": "e.g. Black handle 128 mm",
+    "handleHint": "Add the handles you use. In a cabinet's card you pick which goes where. The default applies to cabinets that do not pick their own.",
+    "handleLabel": "Handle {{n}} (type and model)",
+    "handleRemove": "Remove handle {{n}}",
+    "handleAdd": "Add handle",
+    "handleDefault": "Default handle",
+    "handleNone": "Unnamed (just \"Handles\")",
+    "handleUnnamed": "Handle {{n}}"
   },
   "builder": {
     "title": "Builder",
@@ -96,7 +112,12 @@
     "carcassBoard": "Carcass board (type and color)",
     "frontBoard": "Front board (type and color)",
     "boardHint": "Type the type and color of the board. The same name in several cabinets is the same board, so they are counted together. Change thickness and sheet size in “Materials and worktop”.",
-    "boardPlaceholder": "Same as the project, or type e.g. Egger white chipboard"
+    "boardPlaceholder": "Same as the project, or type e.g. Egger white chipboard",
+    "hdfBoard": "HDF board (type and color)",
+    "handle": "Handles",
+    "handleSame": "Same as the project",
+    "handleNone": "No handles (e.g. push to open)",
+    "handleHint": "Add handles in Settings."
   },
   "validation": {
     "width": "{{module}}: width {{W}} is out of the allowed range.",
@@ -262,10 +283,6 @@
     "heading": "You need to buy",
     "hdf_one": "{{count}} HDF sheet, {{size}}",
     "hdf_other": "{{count}} HDF sheets, {{size}}",
-    "edgeThinCarcass": "Thin edge banding for the carcass: {{amount}}",
-    "edgeThickCarcass": "Thick edge banding for the carcass: {{amount}}",
-    "edgeThinFront": "Thin edge banding for the fronts: {{amount}}",
-    "edgeThickFront": "Thick edge banding for the fronts: {{amount}}",
     "worktop_one": "{{count}} piece of worktop{{decor}}, {{size}}",
     "worktop_other": "{{count}} pieces of worktop{{decor}}, {{size}}",
     "trim": "Wall trim: {{amount}}",
@@ -282,10 +299,13 @@
     "hdfItem_other": "HDF sheets",
     "worktopItem_one": "piece of worktop{{decor}}",
     "worktopItem_other": "pieces of worktop{{decor}}",
-    "titleEdgeThinCarcass": "Thin edge banding, carcass",
-    "titleEdgeThickCarcass": "Thick edge banding, carcass",
-    "titleEdgeThinFront": "Thin edge banding, fronts",
-    "titleEdgeThickFront": "Thick edge banding, fronts"
+    "edgeThin": "Thin edge banding, {{what}}: {{amount}}",
+    "edgeThick": "Thick edge banding, {{what}}: {{amount}}",
+    "titleEdgeThin": "Thin edge banding, {{what}}",
+    "titleEdgeThick": "Thick edge banding, {{what}}",
+    "whatCarcass": "carcass",
+    "whatFront": "front",
+    "whatBoth": "carcass and front"
   },
   "theme": {
     "toLight": "Light theme",
@@ -314,6 +334,30 @@
     "worktopLength": "Worktop length",
     "worktopDepth": "Worktop depth",
     "usage": "Cabinets on this board: {{count}}",
-    "unused": "Not used by any cabinet."
+    "unused": "Not used by any cabinet.",
+    "edgeName": "Edge banding (type and color)",
+    "edgeThin": "Thin banding thickness",
+    "edgeThick": "Thick banding thickness",
+    "edgePlaceholder": "Same as the board"
+  },
+  "color": {
+    "of": "Color in the drawing: {{what}}",
+    "none": "No color",
+    "names": {
+      "white": "White",
+      "cream": "Cream",
+      "beige": "Beige",
+      "lightgrey": "Light grey",
+      "grey": "Grey",
+      "anthracite": "Anthracite",
+      "black": "Black",
+      "oak": "Oak (light wood)",
+      "walnut": "Walnut (dark wood)",
+      "brown": "Brown",
+      "red": "Red",
+      "blue": "Blue",
+      "green": "Green",
+      "yellow": "Yellow"
+    }
   }
 }

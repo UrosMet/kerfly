@@ -13,12 +13,26 @@ export interface ShoppingItem {
   title: string; // "ploče korpusa (Hrast)"
   detail?: string; // "2800 × 2070 × 18 mm"
   note?: string; // "Iskorišćenje: 66%"
+  color?: string; // color of the board, for a swatch
   text: string; // "4 ploče korpusa (Hrast), 2800 × 2070 × 18 mm"
 }
 export interface ShoppingGroup {
   key: 'sheets' | 'edging' | 'worktop' | 'hardware';
   title: string;
   items: ShoppingItem[];
+}
+
+/** Hardware as label and quantity; handles are listed by type. */
+export function hardwareRows(hardware: Report['shopping']['hardware'], units: Settings['units'], t: TFn): [string, number][] {
+  return [
+    [t('report.hinges'), hardware.hinges],
+    ...Object.entries(hardware.slides).map(([len, pairs]): [string, number] => [t('report.slides', { length: formatLength(Number(len), units) }), pairs]),
+    [t('report.legs'), hardware.legs],
+    ...hardware.handles.map((h): [string, number] => [h.name ? `${t('report.handles')} — ${h.name}` : t('report.handles'), h.qty]),
+    [t('report.shelfPins'), hardware.shelfPins],
+    [t('report.wallHangers'), hardware.wallHangers],
+    [t('report.confirmats'), hardware.confirmats.qty],
+  ];
 }
 
 /** The shopping list, grouped: sheets, edge banding, worktop, hardware. Empty groups are left out. */
@@ -31,7 +45,7 @@ export function shoppingGroups(report: Report, s: Settings, t: TFn): ShoppingGro
     const detail = `${dim(line.sheet.length)} × ${dim(line.sheet.width)} × ${dim(line.thickness)} ${u}`;
     const note = `${t('report.utilization')}: ${line.utilization.toFixed(0)}%`;
     if (line.boardId === HDF) {
-      return { qty: line.count, title: t('need.hdfItem', { count: line.count }), detail, note, text: t('need.hdf', { count: line.count, size: detail }) };
+      return { qty: line.count, title: t('need.hdfItem', { count: line.count }), detail, note, color: line.color, text: t('need.hdf', { count: line.count, size: detail }) };
     }
     const carcass = line.kinds.includes('carcass');
     const front = line.kinds.includes('front');
@@ -42,16 +56,19 @@ export function shoppingGroups(report: Report, s: Settings, t: TFn): ShoppingGro
       title: t('need.sheetItem', { count: line.count, what, decor }),
       detail,
       note,
+      color: line.color,
       text: t('need.sheet', { count: line.count, what, decor, size: detail }),
     };
   });
 
   const edgeItems: ShoppingItem[] = [];
-  for (const m of ['carcass', 'front'] as const) {
-    const cap = m === 'carcass' ? 'Carcass' : 'Front';
+  for (const line of edging) {
+    const carcass = line.kinds.includes('carcass');
+    const front = line.kinds.includes('front');
+    const what = line.name || t(carcass && front ? 'need.whatBoth' : carcass ? 'need.whatCarcass' : 'need.whatFront');
     for (const type of ['Thin', 'Thick'] as const) {
-      const v = edging[m][type === 'Thin' ? 'thin' : 'thick'];
-      if (v) edgeItems.push({ qty: meters(v, u), title: t(`need.titleEdge${type}${cap}`), text: t(`need.edge${type}${cap}`, { amount: meters(v, u) }) });
+      const v = type === 'Thin' ? line.thin : line.thick;
+      if (v) edgeItems.push({ qty: meters(v, u), title: t(`need.titleEdge${type}`, { what }), text: t(`need.edge${type}`, { what, amount: meters(v, u) }) });
     }
   }
 
@@ -71,16 +88,9 @@ export function shoppingGroups(report: Report, s: Settings, t: TFn): ShoppingGro
     worktopItems.push({ qty: amount, title: t('report.worktopTrim'), text: t('need.trim', { amount }) });
   }
 
-  const rows: [string, number][] = [
-    [t('report.hinges'), hardware.hinges],
-    ...Object.entries(hardware.slides).map(([len, pairs]): [string, number] => [t('report.slides', { length: formatLength(Number(len), u) }), pairs]),
-    [t('report.legs'), hardware.legs],
-    [t('report.handles'), hardware.handles],
-    [t('report.shelfPins'), hardware.shelfPins],
-    [t('report.wallHangers'), hardware.wallHangers],
-    [t('report.confirmats'), hardware.confirmats.qty],
-  ];
-  const hardwareItems = rows.filter(([, qty]) => qty).map(([label, qty]): ShoppingItem => ({ qty, title: label, text: t('need.item', { label, qty }) }));
+  const hardwareItems = hardwareRows(hardware, u, t)
+    .filter(([, qty]) => qty)
+    .map(([label, qty]): ShoppingItem => ({ qty, title: label, text: t('need.item', { label, qty }) }));
 
   const groups: ShoppingGroup[] = [
     { key: 'sheets', title: t('report.sheets'), items: sheetItems },

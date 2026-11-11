@@ -1,7 +1,8 @@
 import { DEFAULT_IDS } from './boards';
+import { isColorKey } from './palette';
 import { DEFAULT_SETTINGS, MODULE_DEFAULTS } from './defaults';
 import { normalize } from './modules';
-import type { Board, Module, ModuleType, Settings } from './types';
+import type { Board, Handle, Module, ModuleType, Settings } from './types';
 
 export interface Project {
   settings: Settings;
@@ -53,7 +54,7 @@ function parseBoards(raw: unknown): Board[] {
     ids.add(id);
     const field = <T>(key: string, ok: (x: unknown) => x is T, fallback: T): T => (b[key] === undefined ? fallback : pick(`${at}.${key}`, b[key], ok));
     const sheet = isObj(b.sheet) ? b.sheet : b.sheet === undefined ? {} : fail(`${at}.sheet`);
-    return {
+    const out: Board = {
       id,
       name: field('name', str, ''),
       thickness: field('thickness', positive, DEFAULT_SETTINGS.t),
@@ -63,6 +64,33 @@ function parseBoards(raw: unknown): Board[] {
       },
       grain: field('grain', bool, false),
     };
+    // optional: left out when missing, so that a file reads back as it was written
+    if (b.color !== undefined) out.color = pick(`${at}.color`, b.color, isColorKey);
+    if (b.auto !== undefined) out.auto = pick(`${at}.auto`, b.auto, bool);
+    if (b.edge !== undefined) {
+      if (!isObj(b.edge)) fail(`${at}.edge`);
+      const e = b.edge as Record<string, unknown>;
+      out.edge = {
+        name: e.name === undefined ? '' : pick(`${at}.edge.name`, e.name, str),
+        thin: e.thin === undefined ? DEFAULT_SETTINGS.edgeThin : pick(`${at}.edge.thin`, e.thin, nonNegative),
+        thick: e.thick === undefined ? DEFAULT_SETTINGS.edgeThick : pick(`${at}.edge.thick`, e.thick, nonNegative),
+      };
+    }
+    return out;
+  });
+}
+
+function parseHandles(raw: unknown): Handle[] {
+  if (raw === undefined) return [];
+  if (!Array.isArray(raw)) return fail('settings.handles');
+  const ids = new Set<string>();
+  return raw.map((h, i): Handle => {
+    const at = `settings.handles[${i}]`;
+    if (!isObj(h)) return fail(at);
+    const id = pick(`${at}.id`, h.id, str);
+    if (!id || id === 'none' || ids.has(id)) fail(`${at}.id`); // "none" is taken: it means no handles
+    ids.add(id);
+    return { id, name: h.name === undefined ? '' : pick(`${at}.name`, h.name, str) };
   });
 }
 
@@ -81,12 +109,16 @@ function parseSettings(raw: unknown): Settings {
   for (const k of ['kerf', 'trim', 'edgeThin', 'edgeThick', 'plinthHeight', 'gap'] as const) set(k, nonNegative);
   for (const k of ['t', 'frontT', 'hdfT', 'worktopT', 'worktopLength', 'worktopDepth'] as const) set(k, positive);
   set('worktopDecor', str);
+  set('defaultHandle', str);
+  s.handles = parseHandles(raw.handles);
   set('wallLength', positive);
 
   s.sheet = group(raw, 'sheet', { length: positive, width: positive }, DEFAULT_SETTINGS.sheet);
   s.hdfSheet = group(raw, 'hdfSheet', { length: positive, width: positive }, DEFAULT_SETTINGS.hdfSheet);
   s.grain = group(raw, 'grain', { carcass: bool, front: bool }, DEFAULT_SETTINGS.grain);
-  s.decor = group(raw, 'decor', { carcass: str, front: str }, DEFAULT_SETTINGS.decor);
+  s.decor = group(raw, 'decor', { carcass: str, front: str, hdf: str }, DEFAULT_SETTINGS.decor);
+  s.decorColor = group(raw, 'decorColor', { carcass: isColorKey, front: isColorKey, hdf: isColorKey }, DEFAULT_SETTINGS.decorColor);
+  s.edgeName = group(raw, 'edgeName', { carcass: str, front: str }, DEFAULT_SETTINGS.edgeName);
   s.boards = parseBoards(raw.boards);
   return s;
 }
@@ -124,6 +156,8 @@ function parseModules(raw: unknown): Module[] {
     if (m.doorSplitH !== undefined) out.doorSplitH = pick(`${at}.doorSplitH`, m.doorSplitH, positive);
     if (m.carcassBoard !== undefined) out.carcassBoard = pick(`${at}.carcassBoard`, m.carcassBoard, str);
     if (m.frontBoard !== undefined) out.frontBoard = pick(`${at}.frontBoard`, m.frontBoard, str);
+    if (m.hdfBoard !== undefined) out.hdfBoard = pick(`${at}.hdfBoard`, m.hdfBoard, str);
+    if (m.handle !== undefined) out.handle = pick(`${at}.handle`, m.handle, str);
     return out;
   });
   return normalize(modules);

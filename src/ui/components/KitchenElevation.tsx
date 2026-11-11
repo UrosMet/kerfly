@@ -1,4 +1,9 @@
+import type { CSSProperties } from 'react';
 import { useTranslation } from 'react-i18next';
+import { boardById } from '../../core/boards';
+import { NO_HANDLES } from '../../core/handles';
+import { colorHex } from '../../core/palette';
+import { inkFor } from '../color';
 import { dimNum } from '../format';
 import { useStore } from '../../store';
 import { layoutKitchen, type Box } from './elevationLayout';
@@ -31,7 +36,9 @@ export default function KitchenElevation() {
     }
     const handles: [number, number, number, number][] = [];
     const hl = Math.min(b.w * 0.12, 120);
-    if (m.type === 'drawer') {
+    if (m.handle === NO_HANDLES) {
+      // push to open: nothing to draw
+    } else if (m.type === 'drawer') {
       let y = top;
       for (const h of m.drawers ?? []) {
         handles.push([b.x + b.w / 2 - hl, y + h / 2, b.x + b.w / 2 + hl, y + h / 2]);
@@ -86,6 +93,10 @@ export default function KitchenElevation() {
       {ordered.map((b) => {
         const m = b.module;
         const label = `${t(`builder.types.${m.type}`)} ${num(m.W)}`;
+        // what you see from the front: the color of the fronts (of the carcass for a cabinet without fronts)
+        const hasFronts = m.type === 'drawer' ? (m.drawers?.length ?? 0) > 0 : m.doors > 0;
+        const board = hasFronts ? boardById(s, m.frontBoard, 'front') : boardById(s, m.carcassBoard, 'carcass');
+        const fill = colorHex(board.color);
         const pick = () => select(m.id);
         return (
           <g
@@ -96,6 +107,7 @@ export default function KitchenElevation() {
             tabIndex={0}
             aria-pressed={m.id === selectedId}
             aria-label={label}
+            style={fill ? ({ '--mod-fill': fill, '--mod-ink': inkFor(fill) } as CSSProperties) : undefined}
             onClick={pick}
             onKeyDown={(e) => {
               if (e.key === 'Enter' || e.key === ' ') {

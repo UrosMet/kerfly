@@ -1,3 +1,4 @@
+import { handleNameOf } from './handles';
 import { partsForModule } from './parts';
 import { slideLength } from './parts/drawer';
 import type { Module, Settings } from './types';
@@ -6,7 +7,7 @@ export interface Hardware {
   hinges: number;
   slides: Record<number, number>; // slide length (mm) -> pairs
   legs: number;
-  handles: number;
+  handles: { name: string; qty: number }[]; // by handle type; an empty name is the unnamed default
   shelfPins: number;
   wallHangers: number;
   confirmats: { qty: number; estimate: true };
@@ -28,7 +29,7 @@ export function generateHardware(modules: Module[], s: Settings): Hardware {
     hinges: 0,
     slides: {},
     legs: 0,
-    handles: 0,
+    handles: [],
     shelfPins: 0,
     wallHangers: 0,
     confirmats: { qty: 0, estimate: true },
@@ -46,7 +47,14 @@ export function generateHardware(modules: Module[], s: Settings): Hardware {
       const Lv = slideLength(m.D);
       hw.slides[Lv] = (hw.slides[Lv] ?? 0) + drawers;
     }
-    hw.handles += qty('part.door', 'part.drawerFront');
+    const handleName = handleNameOf(s, m);
+    const fronts = handleName === null ? 0 : qty('part.door', 'part.drawerFront');
+    if (fronts > 0) {
+      const name = handleName ?? '';
+      const group = hw.handles.find((h) => h.name.toLowerCase() === name.toLowerCase());
+      if (group) group.qty += fronts;
+      else hw.handles.push({ name, qty: fronts });
+    }
     if (LEG_TYPES.has(m.type)) hw.legs += m.W > 1000 ? 6 : 4;
     hw.shelfPins += 4 * qty('part.shelf');
     if (m.type === 'wall') hw.wallHangers += 2;

@@ -15,7 +15,7 @@ const kitchen: Module[] = [
   ...[0, 1, 2, 3, 4].map((i) => mod('wall', { id: `w${i}`, order: i })),
   mod('tall', { id: 't', order: 6 }),
 ];
-const settings: Settings = { ...DEFAULT_SETTINGS, decor: { carcass: 'Hrast', front: 'Bela' } };
+const settings: Settings = { ...DEFAULT_SETTINGS, decor: { carcass: 'Hrast', front: 'Bela', hdf: '' } };
 const tr = (lng: string) => i18n.getFixedT(lng) as unknown as TFn;
 
 describe('written shopping list', () => {
@@ -31,8 +31,8 @@ describe('written shopping list', () => {
   it('edge banding, worktop and hardware are written out too', () => {
     const lines = shoppingLines(report, settings, tr('sr'));
     const e = edgeMeters(generateParts(kitchen, settings), settings);
-    expect(lines).toContain(`Tanki kant za korpus: ${e.carcass.thin} m`);
-    expect(lines).toContain(`Debeli kant za front: ${e.front.thick} m`);
+    expect(lines).toContain(`Tanki kant, Hrast: ${e[0].thin} m`);
+    expect(lines).toContain(`Debeli kant, Bela: ${e[1].thick} m`);
     expect(lines).toContain('1 komad radne ploče, 4100 × 600 × 38 mm');
     expect(lines.some((l) => /^Šarke: \d+$/.test(l))).toBe(true);
     expect(lines).toContain('Vođice fioka 550 mm (parova): 3');
@@ -43,7 +43,7 @@ describe('written shopping list', () => {
     const lines = shoppingLines(buildReport([mod('base', { id: 'a' })], settings), settings, tr('sr'));
     expect(lines.some((l) => l.startsWith('Vešalice'))).toBe(false); // no wall cabinets
     expect(lines.some((l) => l.startsWith('Vođice'))).toBe(false); // no drawers
-    expect(lines.some((l) => l.startsWith('Tanki kant za front'))).toBe(false); // doors have thick edges only
+    expect(lines.some((l) => l.startsWith('Tanki kant, Bela'))).toBe(false); // doors have thick edges only
   });
 
   it.each([
@@ -62,7 +62,7 @@ describe('written shopping list', () => {
     const s = { ...settings, units: 'in' as const };
     const lines = shoppingLines(buildReport(kitchen, s), s, tr('sr'));
     expect(lines).toContain('4 ploče korpusa (Hrast), 110.24 × 81.5 × 0.71 in');
-    expect(lines.some((l) => /^Tanki kant za korpus: [\d.]+ ft$/.test(l))).toBe(true);
+    expect(lines.some((l) => /^Tanki kant, Hrast: [\d.]+ ft$/.test(l))).toBe(true);
     expect(lines.join('\n')).not.toMatch(/\bmm\b/);
   });
 });
@@ -110,8 +110,8 @@ describe('shoppingGroups', () => {
   it('edge banding items carry the length in the quantity', () => {
     const e = edgeMeters(generateParts(kitchen, settings), settings);
     expect(groups[1].items.map((i) => [i.qty, i.title])).toEqual([
-      [`${e.carcass.thin} m`, 'Tanki kant, korpus'],
-      [`${e.front.thick} m`, 'Debeli kant, front'],
+      [`${e[0].thin} m`, 'Tanki kant, Hrast'],
+      [`${e[1].thick} m`, 'Debeli kant, Bela'],
     ]);
   });
 

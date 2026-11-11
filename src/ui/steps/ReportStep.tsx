@@ -1,12 +1,12 @@
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { buildReport, cuttingListCsv, type CutRow } from '../../core/report';
-import { formatLength } from '../../core/units';
 import { useStore } from '../../store';
-import { boardTitle, kindsLabel } from '../boardLabels';
+import { boardTitle, edgeLabel, kindsLabel } from '../boardLabels';
 import SheetLayout from '../components/SheetLayout';
+import Swatch from '../components/Swatch';
 import { dimNum, downloadCsv, downloadText, meters } from '../format';
-import { reportText, shoppingGroups, type TFn } from '../reportText';
+import { hardwareRows, reportText, shoppingGroups, type TFn } from '../reportText';
 
 const slug = (s: string) =>
   s
@@ -52,15 +52,7 @@ export default function ReportStep() {
   const { shopping, cuttingList, layouts } = report;
   const hw = shopping.hardware;
   const wt = shopping.worktop;
-  const hardwareRows: [string, number][] = [
-    [t('report.hinges'), hw.hinges],
-    ...Object.entries(hw.slides).map(([len, pairs]): [string, number] => [t('report.slides', { length: formatLength(Number(len), units) }), pairs]),
-    [t('report.legs'), hw.legs],
-    [t('report.handles'), hw.handles],
-    [t('report.shelfPins'), hw.shelfPins],
-    [t('report.wallHangers'), hw.wallHangers],
-    [t('report.confirmats'), hw.confirmats.qty],
-  ];
+  const rows = hardwareRows(hw, units, tx);
 
   const exportCsv = (i: number) => {
     const table = cuttingList[i];
@@ -104,7 +96,10 @@ export default function ReportStep() {
                   <li key={i} className="need-item" data-sentence={item.text}>
                     <strong className="need-qty">{item.qty}</strong>
                     <span className="need-body">
-                      <span className="need-title">{item.title}</span>
+                      <span className="need-title">
+                        <Swatch color={item.color} />
+                        {item.title}
+                      </span>
                       {item.detail && <span className="need-detail">{item.detail}</span>}
                       {item.note && <span className="need-note">{item.note}</span>}
                     </span>
@@ -135,7 +130,10 @@ export default function ReportStep() {
               <tbody>
                 {shopping.sheets.map((line) => (
                   <tr key={line.boardId}>
-                    <td>{kindsLabel(line.kinds, tx)}</td>
+                    <td>
+                      <Swatch color={line.color} />
+                      {kindsLabel(line.kinds, tx)}
+                    </td>
                     <td>{line.name}</td>
                     <td>{`${dimNum(line.thickness, units)} ${units}`}</td>
                     <td>{`${dimNum(line.sheet.length, units)} × ${dimNum(line.sheet.width, units)} ${units}`}</td>
@@ -159,11 +157,11 @@ export default function ReportStep() {
               </tr>
             </thead>
             <tbody>
-              {(['carcass', 'front'] as const).map((m) => (
-                <tr key={m}>
-                  <td>{t(`report.materials.${m}`)}</td>
-                  <td>{meters(shopping.edging[m].thin, units)}</td>
-                  <td>{meters(shopping.edging[m].thick, units)}</td>
+              {shopping.edging.map((line) => (
+                <tr key={line.boardIds.join('+')}>
+                  <td>{edgeLabel(line, tx)}</td>
+                  <td>{meters(line.thin, units)}</td>
+                  <td>{meters(line.thick, units)}</td>
                 </tr>
               ))}
             </tbody>
@@ -200,7 +198,7 @@ export default function ReportStep() {
           <table>
             <caption>{t('report.hardware')}</caption>
             <tbody>
-              {hardwareRows.map(([label, qty]) => (
+              {rows.map(([label, qty]) => (
                 <tr key={label}>
                   <th scope="row">{label}</th>
                   <td>{qty}</td>
@@ -217,7 +215,10 @@ export default function ReportStep() {
         return (
           <div key={table.board.id} className="cutting-list card">
             <div className="cutting-head">
-              <h4>{title}</h4>
+              <h4>
+                <Swatch color={table.board.color} />
+                {title}
+              </h4>
               <button type="button" className="no-print" disabled={table.rows.length === 0} onClick={() => exportCsv(i)}>
                 {t('report.exportCsv')}
               </button>
@@ -255,7 +256,10 @@ export default function ReportStep() {
       <h3 className="section-title layouts-title">{t('report.layouts')}</h3>
       {layouts.map(({ board, result }, i) => (
         <div key={board.id} className="layout-group">
-          <h4>{boardTitle(board, cuttingList[i].kinds, units, tx)}</h4>
+          <h4>
+            <Swatch color={board.color} />
+            {boardTitle(board, cuttingList[i].kinds, units, tx)}
+          </h4>
           <SheetLayout result={result} sheet={board.sheet} trim={settings.trim} units={units} />
         </div>
       ))}

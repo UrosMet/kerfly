@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { DEFAULT_SETTINGS, MARKET_PRESETS } from './core/defaults';
-import { assignBoardByName, newBoard, withoutBoard } from './core/boards';
+import { assignBoardByName, DEFAULT_IDS, newBoard, pruneAutoBoards, withoutBoard } from './core/boards';
+import { withoutHandle } from './core/handles';
 import * as ops from './core/modules';
 import { parseProject, type Project } from './core/project';
 import type { Board, Market, Module, ModuleType, Settings } from './core/types';
@@ -47,7 +48,13 @@ interface State extends Project {
   duplicateModule: (id: string) => void;
   deleteModule: (id: string) => void;
   /** Sets a module's carcass or front board from a typed name; see assignBoardByName. */
-  chooseBoard: (moduleId: string, kind: 'carcass' | 'front', name: string) => void;
+  chooseBoard: (moduleId: string, kind: 'carcass' | 'front' | 'hdf', name: string) => void;
+  /** Color of a board in the drawing; for the default boards it is stored in the settings. */
+  setBoardColor: (id: string, color: string) => void;
+  addHandle: () => void;
+  updateHandle: (id: string, name: string) => void;
+  /** Cabinets that used the handle go back to the project's default. */
+  deleteHandle: (id: string) => void;
   addBoard: () => void;
   updateBoard: (id: string, patch: Partial<Board>) => void;
   /** Modules that used the board go back to the project default. */
@@ -84,13 +91,29 @@ export const useStore = create<State>()((set) => ({
     }),
   chooseBoard: (moduleId, kind, name) =>
     set((st) => assignBoardByName(st.settings, st.modules, moduleId, kind, name, newId())),
+  setBoardColor: (id, color) =>
+    set((st) =>
+      DEFAULT_IDS.includes(id)
+        ? { settings: { ...st.settings, decorColor: { ...st.settings.decorColor, [id]: color } } }
+        : { settings: { ...st.settings, boards: st.settings.boards.map((b) => (b.id === id ? { ...b, color, auto: false } : b)) } },
+    ),
+  addHandle: () => set((st) => ({ settings: { ...st.settings, handles: [...st.settings.handles, { id: newId(), name: '' }] } })),
+  updateHandle: (id, name) => set((st) => ({ settings: { ...st.settings, handles: st.settings.handles.map((h) => (h.id === id ? { ...h, name } : h)) } })),
+  deleteHandle: (id) =>
+    set((st) => ({
+      settings: { ...st.settings, handles: st.settings.handles.filter((h) => h.id !== id), defaultHandle: st.settings.defaultHandle === id ? '' : st.settings.defaultHandle },
+      modules: withoutHandle(st.modules, id),
+    })),
   addBoard: () => set((st) => ({ settings: { ...st.settings, boards: [...st.settings.boards, newBoard(st.settings, newId())] } })),
   updateBoard: (id, patch) =>
-    set((st) => ({ settings: { ...st.settings, boards: st.settings.boards.map((b) => (b.id === id ? { ...b, ...patch } : b)) } })),
+    set((st) => ({ settings: { ...st.settings, boards: st.settings.boards.map((b) => (b.id === id ? { ...b, ...patch, auto: false } : b)) } })),
   deleteBoard: (id) =>
     set((st) => ({ settings: { ...st.settings, boards: st.settings.boards.filter((b) => b.id !== id) }, modules: withoutBoard(st.modules, id) })),
   deleteModule: (id) =>
-    set((st) => ({ modules: ops.deleteModule(st.modules, id), selectedId: st.selectedId === id ? null : st.selectedId })),
+    set((st) => {
+      const modules = ops.deleteModule(st.modules, id);
+      return { modules, settings: pruneAutoBoards(st.settings, modules), selectedId: st.selectedId === id ? null : st.selectedId };
+    }),
 }));
 
 useStore.subscribe((st, prev) => {

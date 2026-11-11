@@ -7,7 +7,7 @@ import type { Board, Part, Settings } from '../src/core/types';
 import { mod, settings } from './helpers';
 
 const bela: Board = { id: 'x', name: 'Bela', thickness: 19, sheet: { length: 2800, width: 2070 }, grain: false };
-const s: Settings = { ...settings, decor: { carcass: 'Hrast', front: 'Siva' }, boards: [bela] };
+const s: Settings = { ...settings, decor: { carcass: 'Hrast', front: 'Siva', hdf: '' }, boards: [bela] };
 const part = (over: Partial<Part>): Part => ({
   moduleId: 'm', nameKey: 'part.x', material: 'carcass', L: 100, Wd: 100, qty: 1,
   edges: { L1: 'none', L2: 'none', W1: 'none', W2: 'none' }, ...over,
@@ -16,9 +16,10 @@ const part = (over: Partial<Part>): Part => ({
 describe('boards catalog', () => {
   it('the default boards come from the flat settings', () => {
     const d = defaultBoards({ ...s, t: 16, frontT: 19, hdfT: 4, grain: { carcass: true, front: false }, hdfSheet: { length: 2440, width: 1220 } });
-    expect(d.carcass).toEqual({ id: 'carcass', name: 'Hrast', thickness: 16, sheet: s.sheet, grain: true });
-    expect(d.front).toEqual({ id: 'front', name: 'Siva', thickness: 19, sheet: s.sheet, grain: false });
-    expect(d.hdf).toEqual({ id: 'hdf', name: '', thickness: 4, sheet: { length: 2440, width: 1220 }, grain: false });
+    const edge = { name: '', thin: 0.45, thick: 2 };
+    expect(d.carcass).toEqual({ id: 'carcass', name: 'Hrast', thickness: 16, sheet: s.sheet, grain: true, color: '', edge });
+    expect(d.front).toEqual({ id: 'front', name: 'Siva', thickness: 19, sheet: s.sheet, grain: false, color: '', edge });
+    expect(d.hdf).toEqual({ id: 'hdf', name: '', thickness: 4, sheet: { length: 2440, width: 1220 }, grain: false, color: '', edge });
   });
 
   it('modules can pick carcass, front and the user\'s boards, in that order; HDF is listed last', () => {
@@ -34,8 +35,10 @@ describe('boards catalog', () => {
     expect(boardById(s, 'front', 'carcass').id).toBe('front'); // a carcass may be cut from the front board
   });
 
-  it('boardOfPart: hdf is always the HDF board; unknown ids fall back by material', () => {
-    expect(boardOfPart(s, part({ material: 'hdf', board: 'x' })).id).toBe('hdf');
+  it('boardOfPart: the board of the part itself; unknown ids fall back by material', () => {
+    expect(boardOfPart(s, part({ material: 'hdf', board: 'x' }))).toBe(bela); // a cabinet can pick any board for its HDF
+    expect(boardOfPart(s, part({ material: 'hdf', board: 'gone' })).id).toBe('hdf');
+    expect(boardOfPart(s, part({ material: 'hdf' })).id).toBe('hdf');
     expect(boardOfPart(s, part({ board: 'x' }))).toBe(bela);
     expect(boardOfPart(s, part({ material: 'front', board: 'gone' })).id).toBe('front');
     expect(boardOfPart(s, part({ material: 'carcass' })).id).toBe('carcass');
@@ -53,7 +56,7 @@ describe('boards catalog', () => {
 
   it('a new board starts as a copy of the default carcass board, unnamed, without grain', () => {
     const n = newBoard({ ...s, t: 16 }, 'z');
-    expect(n).toEqual({ id: 'z', name: '', thickness: 16, sheet: s.sheet, grain: false });
+    expect(n).toEqual({ id: 'z', name: '', thickness: 16, sheet: s.sheet, grain: false, color: '', edge: { name: '', thin: 0.45, thick: 2 } });
     expect(n.sheet).not.toBe(s.sheet);
   });
 });

@@ -1,4 +1,4 @@
-import { boardById, defaultBoards, FRONT, HDF } from '../boards';
+import { boardById, defaultBoards, FRONT } from '../boards';
 import { applySubtractEdge } from '../edging';
 import type { Module, Part, Settings } from '../types';
 import { baseParts } from './base';
@@ -14,8 +14,9 @@ import { wallParts } from './wall';
 export function partsForModule(m: Module, s: Settings): Part[] {
   const carcass = boardById(s, m.carcassBoard, 'carcass');
   const front = boardById(s, m.frontBoard, 'front');
+  const hdf = boardById(s, m.hdfBoard, 'hdf');
   const ms = carcass.thickness === s.t ? s : { ...s, t: carcass.thickness };
-  return BY_TYPE[m.type](m, ms).map((p) => ({ ...p, board: p.material === 'hdf' ? HDF : p.material === 'carcass' ? carcass.id : front.id }));
+  return BY_TYPE[m.type](m, ms).map((p) => ({ ...p, board: p.material === 'hdf' ? hdf.id : p.material === 'carcass' ? carcass.id : front.id }));
 }
 
 const BY_TYPE = {

@@ -70,7 +70,7 @@ describe('ReportStep', () => {
   });
 
   it('shopping list: sheets per board with decor, thickness and size, edging, worktop, hardware', () => {
-    const modules = load(kitchen(), { decor: { carcass: 'Hrast', front: 'Bela' } });
+    const modules = load(kitchen(), { decor: { carcass: 'Hrast', front: 'Bela', hdf: '' } });
     render(<App />);
     const sheets = table('Ploče');
     expect(cells(rowWith(sheets, 'Korpus')).slice(0, 5)).toEqual(['Korpus', 'Hrast', '18 mm', '2800 × 2070 mm', '4']);
@@ -78,7 +78,7 @@ describe('ReportStep', () => {
     expect(cells(rowWith(sheets, 'HDF')).slice(0, 5)).toEqual(['HDF', '', '3 mm', '2800 × 2070 mm', '2']);
     expect(cells(rowWith(sheets, 'Korpus'))[5]).toMatch(/^\d+\.\d%$/);
 
-    expect(cells(rowWith(table('Kant'), 'Korpus')).slice(1)).toHaveLength(2);
+    expect(cells(rowWith(table('Kant'), 'Hrast')).slice(1)).toHaveLength(2);
 
     const hw = generateHardware(modules, { ...DEFAULT_SETTINGS });
     const hardware = table('Okovi');
@@ -162,17 +162,17 @@ describe('ReportStep', () => {
 
 describe('written list', () => {
   it('the report starts with what to buy, in sentences', () => {
-    load(kitchen(), { decor: { carcass: 'Hrast', front: 'Bela' } });
+    load(kitchen(), { decor: { carcass: 'Hrast', front: 'Bela', hdf: '' } });
     render(<App />);
     const items = needSentences();
     expect(items).toContain('4 ploče korpusa (Hrast), 2800 × 2070 × 18 mm');
     expect(items).toContain('2 ploče fronta (Bela), 2800 × 2070 × 18 mm');
     expect(items).toContain('2 HDF ploče, 2800 × 2070 × 3 mm');
-    expect(items.some((i) => i?.startsWith('Tanki kant za korpus: '))).toBe(true);
+    expect(items.some((i) => i?.startsWith('Tanki kant, Hrast: '))).toBe(true);
   });
 
   it('TXT export: the same list plus the cutting list, next to the CSV files', async () => {
-    load(kitchen(), { decor: { carcass: 'Hrast', front: 'Bela' } });
+    load(kitchen(), { decor: { carcass: 'Hrast', front: 'Bela', hdf: '' } });
     render(<App />);
     expect(screen.getAllByRole('button', { name: 'Izvezi CSV' })).toHaveLength(3); // CSV is still there
     fireEvent.click(screen.getByRole('button', { name: 'Izvezi spisak (TXT)' }));

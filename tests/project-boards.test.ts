@@ -98,3 +98,100 @@ describe('store: boards', () => {
     expect(st().modules.find((m) => m.id === m2.id)).toBe(m2);
   });
 });
+
+describe('project JSON: color, edge banding and HDF', () => {
+  it('round-trips colors, edge banding, auto flag, HDF board and the new settings', () => {
+    const modules: Module[] = [{ id: 'a', type: 'base', row: 'lower', order: 0, W: 600, H: 720, D: 560, doors: 1, shelves: 1, hdfBoard: 'x' }];
+    const settings = {
+      ...DEFAULT_SETTINGS,
+      boards: [{ ...board, color: 'oak', auto: true, edge: { name: 'ABS bela', thin: 1, thick: 2 } }],
+      decor: { carcass: 'Hrast', front: 'Bela', hdf: 'HDF bela' },
+      decorColor: { carcass: 'walnut', front: 'white', hdf: '' },
+      edgeName: { carcass: 'ABS hrast', front: '' },
+      edgeThin: 0.8,
+    };
+    const p = { settings, modules };
+    expect(parseProjectText(serializeProject(p))).toEqual(p);
+  });
+
+  it('files from before get empty colors and edge names', () => {
+    const p = parseProject({ settings: { decor: { carcass: 'Hrast' } } });
+    expect(p.settings.decor).toEqual({ carcass: 'Hrast', front: '', hdf: '' });
+    expect(p.settings.decorColor).toEqual({ carcass: '', front: '', hdf: '' });
+    expect(p.settings.edgeName).toEqual({ carcass: '', front: '' });
+  });
+
+  it('a board edge with missing fields takes the project defaults', () => {
+    const p = parseProject({ settings: { boards: [{ id: 'x', edge: {} }] } });
+    expect(p.settings.boards[0].edge).toEqual({ name: '', thin: 0.45, thick: 2 });
+  });
+
+  it('rejects bad colors, banding and HDF choices, naming the field', () => {
+    bad({ settings: { decorColor: { carcass: 'purple' } } }, 'settings.decorColor.carcass'); // not in the palette
+    bad({ settings: { decorColor: { front: '#ffffff' } } }, 'settings.decorColor.front'); // colors are named, not hex
+    bad({ settings: { decorColor: { hdf: 'White' } } }, 'settings.decorColor.hdf');
+    bad({ settings: { decorColor: 3 } }, 'settings.decorColor');
+    bad({ settings: { edgeName: { carcass: 4 } } }, 'settings.edgeName.carcass');
+    bad({ settings: { decor: { hdf: 5 } } }, 'settings.decor.hdf');
+    bad({ settings: { boards: [{ id: 'x', color: '#336699' }] } }, 'settings.boards[0].color');
+    bad({ settings: { boards: [{ id: 'x', auto: 'yes' }] } }, 'settings.boards[0].auto');
+    bad({ settings: { boards: [{ id: 'x', edge: 5 }] } }, 'settings.boards[0].edge');
+    bad({ settings: { boards: [{ id: 'x', edge: { thin: -1 } }] } }, 'settings.boards[0].edge.thin');
+    bad({ settings: { boards: [{ id: 'x', edge: { name: 7 } }] } }, 'settings.boards[0].edge.name');
+    bad({ modules: [{ id: 'a', type: 'base', hdfBoard: 5 }] }, 'modules[0].hdfBoard');
+  });
+});
+
+describe('store: board colors and automatic clean-up', () => {
+  const st = () => useStore.getState();
+  beforeEach(() => useStore.setState({ settings: DEFAULT_SETTINGS, modules: [], selectedId: null }));
+
+  it('the color of a default board is stored in the settings, the color of another board on the board', () => {
+    st().setBoardColor('carcass', 'black');
+    st().setBoardColor('hdf', 'grey');
+    expect(st().settings.decorColor).toEqual({ carcass: 'black', front: '', hdf: 'grey' });
+    st().addBoard();
+    const id = st().settings.boards[0].id;
+    st().setBoardColor(id, 'cream');
+    expect(st().settings.boards[0].color).toBe('cream');
+    st().setBoardColor(id, '');
+    expect(st().settings.boards[0].color).toBe('');
+  });
+
+  it('typing a board name makes a board that goes away with its last cabinet, unless it was edited', () => {
+    st().addModule('base');
+    st().addModule('base');
+    const [a, b] = st().modules;
+    st().chooseBoard(a.id, 'carcass', 'Egger');
+    st().chooseBoard(b.id, 'carcass', 'egger');
+    expect(st().settings.boards).toHaveLength(1);
+    st().deleteModule(a.id);
+    expect(st().settings.boards).toHaveLength(1); // b still uses it
+    st().deleteModule(b.id);
+    expect(st().settings.boards).toHaveLength(0);
+  });
+
+  it('editing a typed board in the panel (or coloring it) makes it permanent', () => {
+    st().addModule('base');
+    const m = st().modules[0];
+    st().chooseBoard(m.id, 'carcass', 'Egger');
+    const id = st().settings.boards[0].id;
+    st().updateBoard(id, { thickness: 16 });
+    st().chooseBoard(m.id, 'carcass', '');
+    expect(st().settings.boards.map((b) => b.id)).toEqual([id]); // kept
+
+    st().chooseBoard(m.id, 'front', 'MDF');
+    const id2 = st().settings.boards[1].id;
+    st().setBoardColor(id2, 'black');
+    st().deleteModule(m.id);
+    expect(st().settings.boards.map((b) => b.id)).toEqual([id, id2]);
+  });
+
+  it('a typed board for HDF is used by the module', () => {
+    st().addModule('base');
+    const m = st().modules[0];
+    st().chooseBoard(m.id, 'hdf', 'HDF crni');
+    expect(st().modules[0].hdfBoard).toBe(st().settings.boards[0].id);
+    expect(st().settings.boards[0]).toMatchObject({ name: 'HDF crni', thickness: 3 });
+  });
+});

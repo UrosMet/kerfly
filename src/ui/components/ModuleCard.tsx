@@ -4,6 +4,7 @@ import type { Module } from '../../core/types';
 import { formatLength, fromMm, toMm } from '../../core/units';
 import { useStore } from '../../store';
 import BoardField from './BoardField';
+import HandleField from './HandleField';
 import NumberField from './NumberField';
 
 const isInt = (min: number, max = Infinity) => (n: number) => Number.isInteger(n) && n >= min && n <= max;
@@ -79,8 +80,15 @@ export default function ModuleCard({ module: m }: { module: Module }) {
       <div className="card-fields boards-fields">
         <BoardField module={m} kind="carcass" />
         <BoardField module={m} kind="front" />
+        {m.type !== 'sink' && <BoardField module={m} kind="hdf" />}
       </div>
       <small className="hint">{t('builder.boardHint')}</small>
+
+      {(m.type === 'drawer' ? drawers.length > 0 : m.doors > 0) && (
+        <div className="card-fields">
+          <HandleField module={m} />
+        </div>
+      )}
 
       {m.type === 'drawer' && (
         <fieldset>

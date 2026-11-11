@@ -8,6 +8,13 @@ export interface SheetSize {
   width: number;
 }
 
+/** Edge banding that goes with a board: its type and color, and the two thicknesses. */
+export interface EdgeSpec {
+  name: string; // empty = named after the board
+  thin: number; // mm
+  thick: number; // mm
+}
+
 /** A kind of sheet material: a decor with its own thickness, sheet size and grain. */
 export interface Board {
   id: string; // 'carcass', 'front' and 'hdf' are the project defaults; others are added by the user
@@ -15,6 +22,15 @@ export interface Board {
   thickness: number;
   sheet: SheetSize;
   grain: boolean; // true = parts are not rotated
+  color?: string; // a key of the palette, for the drawing; empty or missing = no color
+  edge?: EdgeSpec; // missing = the project's edgeThin / edgeThick and no name
+  auto?: boolean; // created by typing a name in a cabinet: removed again when no cabinet uses it
+}
+
+/** A handle the user uses, to pick from in a cabinet's card. */
+export interface Handle {
+  id: string;
+  name: string; // type and model, e.g. "Ručka 128 mm crna"
 }
 
 export interface Settings {
@@ -32,10 +48,14 @@ export interface Settings {
   edgeThick: number; // 2
   subtractEdge: boolean; // subtract banding thickness from cut size
   grain: { carcass: boolean; front: boolean }; // true = no rotation
-  decor: { carcass: string; front: string };
+  decor: { carcass: string; front: string; hdf: string };
+  decorColor: { carcass: string; front: string; hdf: string }; // palette keys; empty = no color
+  edgeName: { carcass: string; front: string }; // edge banding of the default boards; empty = named after the decor
   worktopLength: number; // 4100
   worktopDepth: number; // 600
   worktopDecor: string;
+  handles: Handle[]; // the handles to choose from
+  defaultHandle: string; // id of the handle used when a cabinet does not pick one; empty = unnamed "handles"
   worktopT: number; // worktop thickness 38
   /** Extra boards the user adds; modules can pick them. The defaults come from sheet/t/decor/grain above. */
   boards: Board[];
@@ -60,6 +80,8 @@ export interface Module {
   doorSplitH?: number; // tall only: height of lower door section
   carcassBoard?: string; // board id; undefined = the project's default carcass board
   frontBoard?: string; // board id; undefined = the project's default front board
+  hdfBoard?: string; // board id for the back and drawer bottoms; undefined = the project's default HDF board
+  handle?: string; // id of a handle, or "none" for no handles; undefined = the project's default
 }
 
 export interface Part {

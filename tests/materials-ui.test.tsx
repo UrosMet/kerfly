@@ -121,13 +121,13 @@ describe('typing the board of a cabinet', () => {
   const open = (n = 0) => fireEvent.click(screen.getAllByRole('button', { name: /Donji element · 600/ })[n]);
 
   it('shows the default board of the project, with its thickness and sheet', () => {
-    load([mod('base', { id: 'a' })], { decor: { carcass: 'Hrast', front: '' } }, 1);
+    load([mod('base', { id: 'a' })], { decor: { carcass: 'Hrast', front: '', hdf: '' } }, 1);
     render(<App />);
     open();
     expect(field('carcass').value).toBe('Hrast');
     expect(field('front').value).toBe('');
     expect(field('front').placeholder).toBe('Kao u projektu, ili upiši npr. Iverica Egger bela');
-    expect(field('carcass').parentElement!.querySelector('small')!.textContent).toBe('18 mm · 2800 × 2070 mm');
+    expect(field('carcass').closest('.field')!.querySelector('small')!.textContent).toBe('18 mm · 2800 × 2070 mm');
   });
 
   it('a new name creates a board like the default one and sets it on the cabinet, when the field loses focus', () => {
@@ -170,7 +170,7 @@ describe('typing the board of a cabinet', () => {
   });
 
   it('an empty name or the name of the project default goes back to the default board', () => {
-    load([mod('base', { id: 'a', carcassBoard: 'x', frontBoard: 'x' })], { boards: [bela], decor: { carcass: 'Hrast', front: 'Siva' } }, 1);
+    load([mod('base', { id: 'a', carcassBoard: 'x', frontBoard: 'x' })], { boards: [bela], decor: { carcass: 'Hrast', front: 'Siva', hdf: '' } }, 1);
     render(<App />);
     open();
     typeBoard('carcass', '');
@@ -182,7 +182,7 @@ describe('typing the board of a cabinet', () => {
   });
 
   it('typing the name of the other default board uses that board (sheets are shared)', () => {
-    load([mod('base', { id: 'a' })], { decor: { carcass: 'Hrast', front: 'Siva' } }, 1);
+    load([mod('base', { id: 'a' })], { decor: { carcass: 'Hrast', front: 'Siva', hdf: '' } }, 1);
     render(<App />);
     open();
     typeBoard('carcass', 'Siva');
@@ -200,7 +200,7 @@ describe('typing the board of a cabinet', () => {
   });
 
   it('suggests the names that already exist, once each', () => {
-    load([mod('base', { id: 'a' })], { decor: { carcass: 'Hrast', front: 'Hrast' }, boards: [bela, { ...bela, id: 'y', name: ' bela ' }, { ...bela, id: 'z', name: '' }] }, 1);
+    load([mod('base', { id: 'a' })], { decor: { carcass: 'Hrast', front: 'Hrast', hdf: '' }, boards: [bela, { ...bela, id: 'y', name: ' bela ' }, { ...bela, id: 'z', name: '' }] }, 1);
     render(<App />);
     open();
     const list = document.getElementById('mod-carcass-board-names')!;
@@ -251,7 +251,7 @@ describe('the report with several boards', () => {
   const twoBases = () => [mod('base', { id: 'a', order: 0 }), mod('base', { id: 'b', order: 1, carcassBoard: 'x', frontBoard: 'x' })];
 
   it('lists every board with decor, thickness and sheet size', () => {
-    load(twoBases(), { boards: [bela], decor: { carcass: 'Hrast', front: 'Siva' } });
+    load(twoBases(), { boards: [bela], decor: { carcass: 'Hrast', front: 'Siva', hdf: '' } });
     render(<App />);
     const sheets = table('Ploče');
     expect(cells(rowWith(sheets, 'Korpus i front')).slice(0, 5)).toEqual(['Korpus i front', 'Bela', '19 mm', '2800 × 2070 mm', '1']);
@@ -261,7 +261,7 @@ describe('the report with several boards', () => {
   });
 
   it('the written list names the board, its decor and its thickness', () => {
-    load(twoBases(), { boards: [bela], decor: { carcass: 'Hrast', front: 'Siva' } });
+    load(twoBases(), { boards: [bela], decor: { carcass: 'Hrast', front: 'Siva', hdf: '' } });
     render(<App />);
     const items = needSentences();
     expect(items).toContain('1 ploča korpusa i fronta (Bela), 2800 × 2070 × 19 mm');

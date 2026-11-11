@@ -22,14 +22,14 @@ afterEach(cleanup);
 
 describe('shopping list card', () => {
   it('has a block for each kind of thing to buy', () => {
-    load(kitchen, { decor: { carcass: 'Hrast', front: 'Bela' } });
+    load(kitchen, { decor: { carcass: 'Hrast', front: 'Bela', hdf: '' } });
     render(<App />);
     const heads = within(card()).getAllByRole('heading', { level: 4 }).map((h) => h.textContent);
     expect(heads).toEqual(['Ploče', 'Kant', 'Radna ploča', 'Okovi']);
   });
 
   it('every line shows a big quantity apart from the name and the size', () => {
-    load(kitchen, { decor: { carcass: 'Hrast', front: 'Bela' } });
+    load(kitchen, { decor: { carcass: 'Hrast', front: 'Bela', hdf: '' } });
     const { container } = render(<App />);
     const first = container.querySelector('.need-sheets .need-item')!;
     expect(first.querySelector('.need-qty')!.textContent).toBe('1');
@@ -63,7 +63,7 @@ describe('shopping list card', () => {
 
   it('English', async () => {
     await i18n.changeLanguage('en');
-    load(kitchen, { decor: { carcass: 'Oak', front: '' } });
+    load(kitchen, { decor: { carcass: 'Oak', front: '', hdf: '' } });
     const { container } = render(<App />);
     expect(within(card('You need to buy')).getAllByRole('heading', { level: 4 }).map((h) => h.textContent)).toEqual(['Sheets', 'Edge banding', 'Worktop', 'Hardware']);
     expect(container.querySelector('.need-sheets .need-title')!.textContent).toBe('carcass sheet (Oak)');

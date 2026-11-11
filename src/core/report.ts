@@ -1,4 +1,4 @@
-import { edgeMeters, type EdgeMeters } from './edging';
+import { edgeMeters, type EdgeLine } from './edging';
 import { generateHardware, type Hardware } from './hardware';
 import { packBoards, type BoardPack } from './packing';
 import { generateParts } from './parts';
@@ -9,6 +9,7 @@ import { validate, type Issue } from './validate';
 export interface SheetLine {
   boardId: string;
   name: string; // decor, may be empty
+  color: string; // for the drawing, may be empty
   thickness: number;
   sheet: SheetSize;
   kinds: MaterialKey[]; // what is cut from it: carcass, front, hdf
@@ -38,7 +39,7 @@ export type WorktopLine = Hardware['worktop'] & {
 export interface Report {
   shopping: {
     sheets: SheetLine[];
-    edging: EdgeMeters;
+    edging: EdgeLine[];
     worktop: WorktopLine;
     hardware: Omit<Hardware, 'worktop'>;
   };
@@ -68,6 +69,7 @@ export function buildReport(modules: Module[], s: Settings): Report {
     sheets.push({
       boardId: board.id,
       name: board.name,
+      color: board.color ?? '',
       thickness: board.thickness,
       sheet: board.sheet,
       kinds,

@@ -2,6 +2,7 @@ import { useTranslation } from 'react-i18next';
 import { fromMm, toMm } from '../../core/units';
 import type { Market, Units } from '../../core/types';
 import { useStore } from '../../store';
+import ColorField from '../components/ColorField';
 import NumberField from '../components/NumberField';
 
 const MARKETS: Market[] = ['eu', 'us', 'uk'];
@@ -13,6 +14,10 @@ export default function SettingsStep() {
   const setSettings = useStore((st) => st.setSettings);
   const setMarket = useStore((st) => st.setMarket);
   const setStep = useStore((st) => st.setStep);
+  const setBoardColor = useStore((st) => st.setBoardColor);
+  const addHandle = useStore((st) => st.addHandle);
+  const updateHandle = useStore((st) => st.updateHandle);
+  const deleteHandle = useStore((st) => st.deleteHandle);
 
   // Everything is stored in mm; fields show and accept the selected units.
   const show = (mm: number) => fromMm(mm, s.units);
@@ -93,6 +98,13 @@ export default function SettingsStep() {
           value={show(s.hdfT)}
           onCommit={(n) => setSettings({ hdfT: store(n) })}
         />
+        <div className="field">
+          <label htmlFor="decor-hdf">{t('settings.decorHdf')}</label>
+          <div className="input-row">
+            <input id="decor-hdf" placeholder={t('settings.decorPlaceholder')} value={s.decor.hdf} onChange={(e) => setSettings({ decor: { ...s.decor, hdf: e.target.value } })} />
+            <ColorField label={t('color.of', { what: t('settings.decorHdf') })} value={s.decorColor.hdf} onChange={(c) => setBoardColor('hdf', c)} />
+          </div>
+        </div>
       </fieldset>
 
       <fieldset>
@@ -131,24 +143,74 @@ export default function SettingsStep() {
       </fieldset>
 
       <fieldset>
+        <legend>{t('settings.edgeTitle')}</legend>
+        <NumberField id="edge-thin" label={t('settings.edgeThin')} unit={unit} value={show(s.edgeThin)} onCommit={(n) => setSettings({ edgeThin: store(n) })} />
+        <NumberField id="edge-thick" label={t('settings.edgeThick')} unit={unit} value={show(s.edgeThick)} onCommit={(n) => setSettings({ edgeThick: store(n) })} />
+        <div className="field">
+          <label htmlFor="edge-carcass">{t('settings.edgeNameCarcass')}</label>
+          <input id="edge-carcass" placeholder={t('settings.edgePlaceholder')} value={s.edgeName.carcass} onChange={(e) => setSettings({ edgeName: { ...s.edgeName, carcass: e.target.value } })} />
+        </div>
+        <div className="field">
+          <label htmlFor="edge-front">{t('settings.edgeNameFront')}</label>
+          <input id="edge-front" placeholder={t('settings.edgePlaceholder')} value={s.edgeName.front} onChange={(e) => setSettings({ edgeName: { ...s.edgeName, front: e.target.value } })} />
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>{t('settings.handlesTitle')}</legend>
+        {s.handles.map((h, i) => (
+          <div className="field" key={h.id}>
+            <label htmlFor={`handle-${h.id}`}>{t('settings.handleLabel', { n: i + 1 })}</label>
+            <div className="input-row">
+              <input id={`handle-${h.id}`} placeholder={t('settings.handlePlaceholder')} value={h.name} onChange={(e) => updateHandle(h.id, e.target.value)} />
+              <button type="button" aria-label={t('settings.handleRemove', { n: i + 1 })} title={t('settings.handleRemove', { n: i + 1 })} onClick={() => deleteHandle(h.id)}>
+                ×
+              </button>
+            </div>
+          </div>
+        ))}
+        <button type="button" onClick={addHandle}>
+          + {t('settings.handleAdd')}
+        </button>
+        <div className="field">
+          <label htmlFor="handle-default">{t('settings.handleDefault')}</label>
+          <select id="handle-default" value={s.handles.some((h) => h.id === s.defaultHandle) ? s.defaultHandle : ''} onChange={(e) => setSettings({ defaultHandle: e.target.value })}>
+            <option value="">{t('settings.handleNone')}</option>
+            {s.handles.map((h, i) => (
+              <option key={h.id} value={h.id}>
+                {h.name.trim() || t('settings.handleUnnamed', { n: i + 1 })}
+              </option>
+            ))}
+          </select>
+          <small>{t('settings.handleHint')}</small>
+        </div>
+      </fieldset>
+
+      <fieldset>
         <legend>{t('settings.decor')}</legend>
         <div className="field">
           <label htmlFor="decor-carcass">{t('settings.decorCarcass')}</label>
-          <input
-            id="decor-carcass"
-            placeholder={t('settings.decorPlaceholder')}
-            value={s.decor.carcass}
-            onChange={(e) => setSettings({ decor: { ...s.decor, carcass: e.target.value } })}
-          />
+          <div className="input-row">
+            <input
+              id="decor-carcass"
+              placeholder={t('settings.decorPlaceholder')}
+              value={s.decor.carcass}
+              onChange={(e) => setSettings({ decor: { ...s.decor, carcass: e.target.value } })}
+            />
+            <ColorField label={t('color.of', { what: t('settings.decorCarcass') })} value={s.decorColor.carcass} onChange={(c) => setBoardColor('carcass', c)} />
+          </div>
         </div>
         <div className="field">
           <label htmlFor="decor-front">{t('settings.decorFront')}</label>
-          <input
-            id="decor-front"
-            placeholder={t('settings.decorPlaceholder')}
-            value={s.decor.front}
-            onChange={(e) => setSettings({ decor: { ...s.decor, front: e.target.value } })}
-          />
+          <div className="input-row">
+            <input
+              id="decor-front"
+              placeholder={t('settings.decorPlaceholder')}
+              value={s.decor.front}
+              onChange={(e) => setSettings({ decor: { ...s.decor, front: e.target.value } })}
+            />
+            <ColorField label={t('color.of', { what: t('settings.decorFront') })} value={s.decorColor.front} onChange={(c) => setBoardColor('front', c)} />
+          </div>
         </div>
       </fieldset>
 

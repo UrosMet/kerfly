@@ -49,7 +49,23 @@
     "next": "Dalje",
     "frontThickness": "Debljina fronta",
     "hdfThickness": "Debljina HDF-a",
-    "decorPlaceholder": "npr. Iverica Egger bela"
+    "decorPlaceholder": "npr. Iverica Egger bela",
+    "decorHdf": "Tip i boja HDF-a",
+    "edgeTitle": "Kant",
+    "edgeThin": "Debljina tankog kanta",
+    "edgeThick": "Debljina debelog kanta",
+    "edgeNameCarcass": "Kant korpusa (tip i boja)",
+    "edgeNameFront": "Kant fronta (tip i boja)",
+    "edgePlaceholder": "Isti kao ploča",
+    "handlesTitle": "Ručke",
+    "handlePlaceholder": "npr. Ručka 128 mm crna",
+    "handleHint": "Dodaj ručke koje koristiš. U kartici elementa biraš koja ide gde. Podrazumevana važi za elemente koji ne biraju svoju.",
+    "handleLabel": "Ručka {{n}} (tip i model)",
+    "handleRemove": "Ukloni ručku {{n}}",
+    "handleAdd": "Dodaj ručku",
+    "handleDefault": "Podrazumevana ručka",
+    "handleNone": "Bez naziva (samo „Ručke“)",
+    "handleUnnamed": "Ručka {{n}}"
   },
   "builder": {
     "title": "Sastavljanje",
@@ -96,7 +112,12 @@
     "carcassBoard": "Ploča korpusa (tip i boja)",
     "frontBoard": "Ploča fronta (tip i boja)",
     "boardHint": "Upiši tip i boju ploče. Isti naziv u više elemenata je ista ploča, pa se računa zajedno. Debljinu i format ploče menjaš u „Materijali i radna ploča“.",
-    "boardPlaceholder": "Kao u projektu, ili upiši npr. Iverica Egger bela"
+    "boardPlaceholder": "Kao u projektu, ili upiši npr. Iverica Egger bela",
+    "hdfBoard": "Ploča HDF (tip i boja)",
+    "handle": "Ručke",
+    "handleSame": "Kao u projektu",
+    "handleNone": "Bez ručki (npr. otvaranje pritiskom)",
+    "handleHint": "Ručke dodaješ u Podešavanjima."
   },
   "validation": {
     "width": "{{module}}: širina {{W}} je izvan dozvoljenog opsega.",
@@ -263,10 +284,6 @@
     "hdf_one": "{{count}} HDF ploča, {{size}}",
     "hdf_few": "{{count}} HDF ploče, {{size}}",
     "hdf_other": "{{count}} HDF ploča, {{size}}",
-    "edgeThinCarcass": "Tanki kant za korpus: {{amount}}",
-    "edgeThickCarcass": "Debeli kant za korpus: {{amount}}",
-    "edgeThinFront": "Tanki kant za front: {{amount}}",
-    "edgeThickFront": "Debeli kant za front: {{amount}}",
     "worktop_one": "{{count}} komad radne ploče{{decor}}, {{size}}",
     "worktop_few": "{{count}} komada radne ploče{{decor}}, {{size}}",
     "worktop_other": "{{count}} komada radne ploče{{decor}}, {{size}}",
@@ -288,10 +305,13 @@
     "worktopItem_one": "komad radne ploče{{decor}}",
     "worktopItem_few": "komada radne ploče{{decor}}",
     "worktopItem_other": "komada radne ploče{{decor}}",
-    "titleEdgeThinCarcass": "Tanki kant, korpus",
-    "titleEdgeThickCarcass": "Debeli kant, korpus",
-    "titleEdgeThinFront": "Tanki kant, front",
-    "titleEdgeThickFront": "Debeli kant, front"
+    "edgeThin": "Tanki kant, {{what}}: {{amount}}",
+    "edgeThick": "Debeli kant, {{what}}: {{amount}}",
+    "titleEdgeThin": "Tanki kant, {{what}}",
+    "titleEdgeThick": "Debeli kant, {{what}}",
+    "whatCarcass": "korpus",
+    "whatFront": "front",
+    "whatBoth": "korpus i front"
   },
   "theme": {
     "toLight": "Svetla tema",
@@ -321,6 +341,30 @@
     "worktopLength": "Dužina radne ploče",
     "worktopDepth": "Dubina radne ploče",
     "usage": "Elemenata na ovoj ploči: {{count}}",
-    "unused": "Ne koristi se ni u jednom elementu."
+    "unused": "Ne koristi se ni u jednom elementu.",
+    "edgeName": "Kant (tip i boja)",
+    "edgeThin": "Debljina tankog kanta",
+    "edgeThick": "Debljina debelog kanta",
+    "edgePlaceholder": "Isti kao ploča"
+  },
+  "color": {
+    "of": "Boja na crtežu: {{what}}",
+    "none": "Bez boje",
+    "names": {
+      "white": "Bela",
+      "cream": "Krem",
+      "beige": "Bež",
+      "lightgrey": "Svetlosiva",
+      "grey": "Siva",
+      "anthracite": "Antracit",
+      "black": "Crna",
+      "oak": "Hrast (svetlo drvo)",
+      "walnut": "Orah (tamno drvo)",
+      "brown": "Braon",
+      "red": "Crvena",
+      "blue": "Plava",
+      "green": "Zelena",
+      "yellow": "Žuta"
+    }
   }
 }

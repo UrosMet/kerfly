@@ -14,6 +14,11 @@ export function kindsLabel(kinds: MaterialKey[], t: TFn): string {
   return t('report.materials.hdf');
 }
 
+/** Name of a banding line: its type and color, or what it goes on ("Korpus", "Korpus i front"). */
+export function edgeLabel(line: { name: string; kinds: MaterialKey[] }, t: TFn): string {
+  return line.name || kindsLabel(line.kinds, t);
+}
+
 /** Heading of a board in the report: "Korpus — Hrast · 18 mm". */
 export function boardTitle(b: { name: string; thickness: number }, kinds: MaterialKey[], units: Units, t: TFn): string {
   return `${kindsLabel(kinds, t)}${b.name ? ` — ${b.name}` : ''} · ${dimNum(b.thickness, units)} ${units}`;

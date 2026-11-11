@@ -15,11 +15,11 @@ afterEach(() => vi.unstubAllGlobals());
 
 describe('store', () => {
   it('setMarket applies the preset and keeps the other settings', () => {
-    useStore.getState().setSettings({ decor: { carcass: 'Hrast', front: 'Bela' }, gap: 2 });
+    useStore.getState().setSettings({ decor: { carcass: 'Hrast', front: 'Bela', hdf: '' }, gap: 2 });
     useStore.getState().setMarket('us');
     const s = useStore.getState().settings;
     expect([s.market, s.units, s.sheet.length, s.sheet.width, s.hdfSheet.length, s.t]).toEqual(['us', 'in', 2440, 1220, 2440, 18]);
-    expect(s.decor).toEqual({ carcass: 'Hrast', front: 'Bela' });
+    expect(s.decor).toEqual({ carcass: 'Hrast', front: 'Bela', hdf: '' });
     expect(s.gap).toBe(2);
     useStore.getState().setMarket('eu');
     expect(useStore.getState().settings.sheet).toEqual({ length: 2800, width: 2070 });

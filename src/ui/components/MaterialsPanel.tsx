@@ -1,6 +1,8 @@
 import { useTranslation } from 'react-i18next';
+import { boardEdge } from '../../core/boards';
 import { fromMm, toMm } from '../../core/units';
 import { useStore } from '../../store';
+import ColorField from './ColorField';
 import NumberField from './NumberField';
 
 /** Extra boards (decors with their own thickness and sheet size) and the worktop. */
@@ -11,6 +13,7 @@ export default function MaterialsPanel() {
   const addBoard = useStore((st) => st.addBoard);
   const updateBoard = useStore((st) => st.updateBoard);
   const deleteBoard = useStore((st) => st.deleteBoard);
+  const setBoardColor = useStore((st) => st.setBoardColor);
   const modules = useStore((st) => st.modules);
   const usedBy = (id: string) => modules.filter((m) => m.carcassBoard === id || m.frontBoard === id).length;
 
@@ -33,7 +36,10 @@ export default function MaterialsPanel() {
             <legend>{t('materials.boardTitle', { n: i + 1 })}</legend>
             <div className="field">
               <label htmlFor={`board-${b.id}-name`}>{t('materials.decor')}</label>
-              <input id={`board-${b.id}-name`} value={b.name} placeholder={t('settings.decorPlaceholder')} onChange={(e) => updateBoard(b.id, { name: e.target.value })} />
+              <div className="input-row">
+                <input id={`board-${b.id}-name`} value={b.name} placeholder={t('settings.decorPlaceholder')} onChange={(e) => updateBoard(b.id, { name: e.target.value })} />
+                <ColorField label={t('color.of', { what: t('materials.decor') })} value={b.color} onChange={(c) => setBoardColor(b.id, c)} />
+              </div>
             </div>
             <NumberField id={`board-${b.id}-t`} label={t('materials.thickness')} unit={u} value={show(b.thickness)} onCommit={(n) => updateBoard(b.id, { thickness: store(n) })} />
             <NumberField
@@ -49,6 +55,29 @@ export default function MaterialsPanel() {
               unit={u}
               value={show(b.sheet.width)}
               onCommit={(n) => updateBoard(b.id, { sheet: { ...b.sheet, width: store(n) } })}
+            />
+            <div className="field">
+              <label htmlFor={`board-${b.id}-edge`}>{t('materials.edgeName')}</label>
+              <input
+                id={`board-${b.id}-edge`}
+                value={boardEdge(s, b).name}
+                placeholder={t('materials.edgePlaceholder')}
+                onChange={(e) => updateBoard(b.id, { edge: { ...boardEdge(s, b), name: e.target.value } })}
+              />
+            </div>
+            <NumberField
+              id={`board-${b.id}-edge-thin`}
+              label={t('materials.edgeThin')}
+              unit={u}
+              value={show(boardEdge(s, b).thin)}
+              onCommit={(n) => updateBoard(b.id, { edge: { ...boardEdge(s, b), thin: store(n) } })}
+            />
+            <NumberField
+              id={`board-${b.id}-edge-thick`}
+              label={t('materials.edgeThick')}
+              unit={u}
+              value={show(boardEdge(s, b).thick)}
+              onCommit={(n) => updateBoard(b.id, { edge: { ...boardEdge(s, b), thick: store(n) } })}
             />
             <label className="check">
               <input type="checkbox" checked={b.grain} onChange={(e) => updateBoard(b.id, { grain: e.target.checked })} />

@@ -189,7 +189,7 @@ button[aria-pressed='true'] {
   background: var(--accent);
   color: var(--accent-ink);
 }
-input:not([type='checkbox']):not([type='file']),
+input:not([type='checkbox']):not([type='file']):not([type='color']),
 select {
   width: 100%;
   min-height: 42px;
@@ -574,19 +574,19 @@ main {
   background: linear-gradient(180deg, var(--surface) 0%, var(--surface-2) 100%);
 }
 .elevation .mod rect {
-  fill: var(--wood-2);
-  stroke: var(--wood-line);
+  fill: var(--mod-fill, var(--wood-2));
+  stroke: var(--mod-ink, var(--wood-line));
   stroke-width: 1.5px;
   vector-effect: non-scaling-stroke;
 }
 .elevation .mod-wall rect {
-  fill: var(--wood-1);
+  fill: var(--mod-fill, var(--wood-1));
 }
 .elevation .mod-tall rect {
-  fill: var(--wood-3);
+  fill: var(--mod-fill, var(--wood-3));
 }
 .elevation .mod-sink rect {
-  fill: color-mix(in srgb, var(--wood-2) 72%, #7f9fb5);
+  fill: var(--mod-fill, color-mix(in srgb, var(--wood-2) 72%, #7f9fb5));
 }
 .elevation .mod {
   cursor: pointer;
@@ -1370,4 +1370,45 @@ main {
   .need-qty {
     width: 4rem;
   }
+}
+
+/* ───────── colors ───────── */
+.color-field {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 4px;
+}
+.color-field select {
+  width: auto;
+  min-width: 9.5rem;
+}
+.swatch {
+  display: inline-block;
+  width: 0.85em;
+  height: 0.85em;
+  margin-right: 0.45em;
+  border: 1px solid color-mix(in srgb, var(--ink) 35%, transparent);
+  border-radius: 3px;
+  vertical-align: -0.08em;
+}
+.elevation .mod .detail,
+.elevation .mod .handle {
+  stroke: var(--mod-ink, var(--wood-line));
+}
+
+/* a name with a color list: the name on its own line, the color under it */
+.input-row:has(> .color-field) {
+  flex-wrap: wrap;
+}
+.input-row:has(> .color-field) > input {
+  flex: 1 1 100%;
+}
+.input-row:has(> .color-field) > .color-field {
+  flex: 1 1 100%;
+}
+.input-row:has(> .color-field) .color-field select {
+  flex: 1;
+  width: 100%;
+  min-width: 0;
 }

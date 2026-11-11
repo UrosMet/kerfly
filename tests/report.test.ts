@@ -14,7 +14,7 @@ const kitchen: Module[] = [
   ...Array.from({ length: 5 }, (_, i) => mod('wall', { id: `wall${i}`, order: i })),
   mod('tall', { id: 'tall', order: 6 }),
 ];
-const s: Settings = { ...settings, decor: { carcass: 'Hrast', front: 'Bela' }, worktopDecor: 'Beton' };
+const s: Settings = { ...settings, decor: { carcass: 'Hrast', front: 'Bela', hdf: '' }, worktopDecor: 'Beton' };
 
 describe('buildReport', () => {
   const r = buildReport(kitchen, s);
